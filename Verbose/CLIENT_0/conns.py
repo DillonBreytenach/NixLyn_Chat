@@ -52,6 +52,13 @@ class connections():
                         if data:
                             #WRITE ALL INCOMING DATA TO IN_BOUND<FILE>
                             self.FM.write_file("SOCKET_DATA/IN_BOUND.txt", data, "*", "w")
+
+                            # LOG OFF
+                            if "GOODBYE" in data:
+                                print("LOGGED_OFF::", str(data))
+
+
+
                             #UPDATE CONTACTS LIST DATA
                             if "STATE" in data:
                                 #print("[GOT_TARGET_USER_STATE]::", str(data))
@@ -59,8 +66,9 @@ class connections():
                             if "CONTS" in data:
                                 c_list = data.split("*")
                                 if "EMPTY" not in c_list:
-                                    print("C_LIST.. ", str(c_list[1]))
+                                    #print("C_LIST.. ", str(c_list[1]))
                                     self.FM.write_file("CHATS/CONTS.txt", str(c_list[1]), "%", "w")
+                            # GET MSGS
                         data_len = 0
             except Exception as e:
                 print("[SOCKET CLOSED]")

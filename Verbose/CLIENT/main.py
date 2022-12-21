@@ -41,9 +41,6 @@ try:
     from kivy.core.window import Window
     Window.size = (300, 560)
 
-
-
-
     from kivy.lang import Builder
 
     #PROGRAM FILES IMPORTS
@@ -61,7 +58,6 @@ class Welcome(Popup):
     print("WELCOME")
     msg_ = "ONLINE*"+str(File_man().read_file("SOCKET_DATA/USER.txt", "*"))[2:-2]
     File_man().write_file("SOCKET_DATA/OUT_BOUND.txt", msg_, "*", "w")
-
 class Reg_Fail(Popup):
     print("REGISTER_FAILED")
 
@@ -90,11 +86,6 @@ class Search(Screen):
         MDApp.get_running_app().root.current = 'Home'
 
 #*********************************************************************************************************
-#ToDO:
-    # -- FIX CONTACTS - > ADD NEW --
-    #CALENDER
-    #MAPPING/ROUTING
-
 #*********************************************************************************************************
 
 
@@ -108,11 +99,10 @@ class Chat_Msgs(Button):
         super().on_release(**kwargs)
         self.FM = File_man()
         print("MSG:ON_R: ", str(self.text))
-        if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
-            print("OPENING_CHATS", str(self.text))
-            self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
-            MDApp.get_running_app().root.current = 'Chats'
-
+        #if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
+        #    print("OPENING_CHATS", str(self.text))
+        #    self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
+        #    MDApp.get_running_app().root.current = 'Chats'
 
 class Scroll_Chats(RecycleView): 
     def __init__(self, **kw):
@@ -120,21 +110,18 @@ class Scroll_Chats(RecycleView):
         self.FM = File_man()
         print("[Scroll_Chats]:: INIT")
         Clock.schedule_interval(self.go_on, 1)
-    
 
     def go_on(self, inst):
         #print("[Scroll_Me]::[Go_On]")
         cont = self.FM.read_file("CHATS/CURRENT.txt", "%")
         chat = self.FM.read_file(f"MSGS/{str(cont)[2:-2]}.txt", "*$")[:-1]
-
         if chat:
+            #print("[ASSIGNING_CHATS]::[SCROLL_CHATS]")
             self.data = [{'text': str(x), "root_widget": self} for x in chat if x]
-        else:
-            print("NO CONTACT IN LIST")
+
 
     def goToUpdate(self):
         print("INST:goT: ")
-
 
 class Chats(Screen):
     def __init__(self, **kw):
@@ -150,7 +137,7 @@ class Chats(Screen):
             Clock.schedule_interval(self.go_on, 1)
 
     def go_on(self, inst):
-        print("[CHATS]::[Go_On]")
+        #print("[CHATS]::[Go_On]")
         self.target_user = ""
         user_data = self.FM.read_file("CHATS/CURRENT.txt", "*")
         self.target_user = str(user_data[0])
@@ -159,12 +146,14 @@ class Chats(Screen):
 
 
     def send_it(self):
-        to_send = "MSG_TO$%:"+str(self.target_user)+"$%:"+str(self.ids['MSG_OUT'].text)
+        user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
+        self.user_name = str(user_data[0])
+        to_send = "MSG_TO$%:"+str(self.target_user)+"$%:"+self.user_name+"$%:"+str(self.ids['MSG_OUT'].text)
         print("\nSEND:\n >> ", to_send)
         self.FM.write_file("SOCKET_DATA/MSG_OF.txt", to_send, "$%:", "w")
 
     def chat_info(self):
-        print("[CHAT_INFO]")
+        #print("[CHAT_INFO]")
         msg_ = "GET_STATE*"+str(self.target_user)+"*"+str(self.FM.read_file("CHATS/CURRENT.txt", "&")[0])
         #print("[GET_STATE]:: ", str(msg_))
 
@@ -188,8 +177,9 @@ class Chats(Screen):
         Clock.unschedule(self.go_on)
 
     def back(self):
+        user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
+        self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "LOGOUT*"+str(user_data)[2:-2]+"*OFFLINE", "*", "w")
         MDApp.get_running_app().root.current = 'Main_WID'
-        self.FM.write_file("CHATS/CURRENT.txt", "Home", "&", "w")
         Clock.unschedule(self.go_on)
 
 #*********************************************************************************************************
@@ -259,8 +249,11 @@ class Contacts(Screen):
         Clock.unschedule(self.go_on)
 
     def back(self):
+        user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
+        self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "LOGOUT*"+str(user_data)[2:-2]+"*OFFLINE", "*", "w")
         MDApp.get_running_app().root.current = 'Main_WID'
         Clock.unschedule(self.go_on)
+
 #CONTACT_BUTTONS
 class Chat_Buttons(Button):
     root_widget = ObjectProperty()
@@ -274,8 +267,9 @@ class Chat_Buttons(Button):
             print("OPENING_CHATS", str(self.text))
             self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
             MDApp.get_running_app().root.current = 'Chats'
-#CONTACT_LIST
-class Scroll_Me(RecycleView): 
+
+#CONTACT_LIST_SCROLLER
+class Scroll_Me(RecycleView):
     def __init__(self, **kw):
         super(Scroll_Me, self).__init__(**kw)
         self.FM = File_man()
@@ -287,10 +281,12 @@ class Scroll_Me(RecycleView):
         #print("[Scroll_Me]::[Go_On]")
         contacts = self.FM.read_file("CHATS/CONTS.txt", "%")[:-1]
         if contacts:
+            #print("[ASSIGNING_CONTS]::[SCROLL_CONTS]")
             self.data = [{'text': str(x), "root_widget": self} for x in contacts if x]
 
     def goToUpdate(self):
         print("INST:goT: ")
+
 #*********************************************************************************************************
 #INITIAL SET_UPs
 #*********************************************************************************************************
@@ -321,7 +317,10 @@ class Home(Screen):
         MDApp.get_running_app().root.current = 'New_Log'
 
     def back(self):
+        user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
+        self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "LOGOUT*"+str(user_data)[2:-2]+"*OFFLINE", "*", "w")
         MDApp.get_running_app().root.current = 'Main_WID'
+
 #LOGIN
 class Login(Screen):
     def __init__(self, **kw):

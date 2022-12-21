@@ -87,7 +87,10 @@ WindowManager:
 
 #-----------------------------------------------------------------------------------------------------
 #SCREENS
+#-----------------------------------------------------------------------------------------------------
     #FUNC_S
+#-----------------------------------------------------------------------------------------------------
+
 <New_Log>:
     name: 'New_Log'
     MDFloatLayout:
@@ -130,17 +133,21 @@ WindowManager:
     scrollerName: Scroll_Me
     MDFloatLayout:
 
+        Scroll_Me:
+            pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+            id: Scroll_Me
+
         Button:
             id: USER
             text: "USER"
-            size_hint: .7, .1
+            size_hint: .6, .1
             pos_hint: {'x': 0.2,'y': 0.9}
 
         Button:
             id: add
             text: "+"
-            size_hint: .1, .1
-            pos_hint: {'x': 0.9,'y': 0.9}
+            size_hint: .2, .1
+            pos_hint: {'x': 0.8,'y': 0.9}
             on_release: root.add_c()
 
         Button:
@@ -164,11 +171,6 @@ WindowManager:
             pos_hint: {'x': 0.0,'y': 0.9}
             on_press: root.back()
         
-        Scroll_Me:
-            pos_hint: {'center_x': 0.5, 'center_y': 0.3}
-            id: Scroll_Me
-
-
 
 #-----------------------------------------------------------------------------------------------------
 <Scroll_Chats>:
@@ -179,8 +181,6 @@ WindowManager:
         size_hint_y: None
         orientation: 'vertical'
         height: self.minimum_height
-
-
 <Chats>:
     id: Chats
     name: 'Chats'
