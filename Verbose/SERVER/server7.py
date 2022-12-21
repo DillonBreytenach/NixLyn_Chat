@@ -38,6 +38,10 @@ class server():
         #ACTIVE USERS
         self.LOGGED_IN = []
 
+
+        # THREADS 
+        self.threads = []
+
     #SEND_METHODE
     def reply(self, conn, data):
         try:
@@ -297,10 +301,8 @@ class server():
                 return "FAILED"
 
 
-
     def msg_of(self, data):
         pass
-
 
     #CLIENT_THREAD_HANDLE
     def handle_client(self, conn, addr):
@@ -529,9 +531,24 @@ class server():
         print("[LOOP_EXITED]:",str(user))
         return
 
+    # THREAD CHECKER
+    def check_and_join_threads(self):
+        while True:
+            for thread in self.threads:
+                if isinstance(thread, threading.Thread) and thread.is_alive():
+                    #print(str(thread), "IS_ACTIVE")
+                    continue  # Thread is still active, skip it
+                elif isinstance(thread, threading.Thread):
+                    print(str(thread), "NOT_ACTIVE")
+                    thread.join()  # Thread is no longer active, join it
+                    self.threads.remove(thread)
 
     #MAIN_CLIENT_HANDLE
     def Main(self):
+        print("[STARTING_THREAD_CHECKER]")
+        threading.Thread(group=None, target=self.check_and_join_threads).start()
+
+
         #BIND_INCOMING_CONNECTION
         try:
             self.sock.bind(('', self.port))
@@ -553,8 +570,10 @@ class server():
                 print("[ERROR_CONNECTING_NEW_CLIENT] :", str(e))        
             try:
                 t1 = threading.Thread(group=None, target=self.handle_client, args=(conn, addr))
-                t1.daemon= True
+                t1.daemon = True
                 t1.start()
+                self.threads.append(t1)
+                #print("[NEW_THREAD]:", str(t1))
             except ThreadError as e:
                 print(f'SERVER::MAIN:: {str(e)}')
 
