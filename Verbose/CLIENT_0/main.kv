@@ -167,11 +167,30 @@ WindowManager:
         Scroll_Me:
             pos_hint: {'center_x': 0.5, 'center_y': 0.3}
             id: Scroll_Me
+
+
+
+#-----------------------------------------------------------------------------------------------------
+<Scroll_Chats>:
+    viewclass: "Chat_Msgs"
+    RecycleBoxLayout:
+        default_size: None, None
+        default_size_hint: 1, None
+        size_hint_y: None
+        orientation: 'vertical'
+        height: self.minimum_height
+
+
 <Chats>:
     id: Chats
     name: 'Chats'
+    scrollerName: Scroll_Chats
 
     MDFloatLayout:
+        Scroll_Chats:
+            pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+            id: Scroll_Chats
+
 
         Button:
             id: TARGET_USER
@@ -195,9 +214,10 @@ WindowManager:
         Button:
             id: CONTACTS
             text: "CONTACTS"
-            disabled: True
+            disabled: False
             size_hint: .5, .1
             pos_hint: {'x': 0.5,'y': 0.8}
+            on_release: root.contacts()
 
         Button:
             id: EXIT
@@ -206,6 +226,18 @@ WindowManager:
             pos_hint: {'x': 0.0,'y': 0.9}
             on_press: root.back()
 
+
+        TextInput:
+            id: MSG_OUT
+            size_hint: .8, .1
+            pos_hint: {'x': 0.0,'y': 0.0}
+
+        Button:
+            id: SEND_IT
+            text: "SEND"
+            size_hint: .2, .1
+            pos_hint: {'x': 0.8,'y': 0.0}
+            on_press: root.send_it()
 #-----------------------------------------------------------------------------------------------------
     #MAIN_PROFILE_HANDLE
 <Home>:

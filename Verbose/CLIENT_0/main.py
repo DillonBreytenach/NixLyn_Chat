@@ -101,11 +101,47 @@ class Search(Screen):
 #*********************************************************************************************************
 #CHAT_PAGE
 #*********************************************************************************************************
+class Chat_Msgs(Button):
+    root_widget = ObjectProperty()
+
+    def on_release(self, **kwargs):
+        super().on_release(**kwargs)
+        self.FM = File_man()
+        print("MSG:ON_R: ", str(self.text))
+        if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
+            print("OPENING_CHATS", str(self.text))
+            self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
+            MDApp.get_running_app().root.current = 'Chats'
+
+
+class Scroll_Chats(RecycleView): 
+    def __init__(self, **kw):
+        super(Scroll_Chats, self).__init__(**kw)
+        self.FM = File_man()
+        print("[Scroll_Chats]:: INIT")
+        Clock.schedule_interval(self.go_on, 1)
+    
+
+    def go_on(self, inst):
+        #print("[Scroll_Me]::[Go_On]")
+        cont = self.FM.read_file("CHATS/CURRENT.txt", "%")
+        chat = self.FM.read_file(f"MSGS/{str(cont)[2:-2]}.txt", "*$")[:-1]
+
+        if chat:
+            self.data = [{'text': str(x), "root_widget": self} for x in chat if x]
+        else:
+            print("NO CONTACT IN LIST")
+
+    def goToUpdate(self):
+        print("INST:goT: ")
+
+
 class Chats(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.FM = File_man()
         self.state = ""
+
 
 
     def on_enter(self):
@@ -121,15 +157,21 @@ class Chats(Screen):
         self.ids['TARGET_USER'].text = str(self.target_user)
         self.chat_info()
 
+
+    def send_it(self):
+        to_send = "MSG_TO$%:"+str(self.target_user)+"$%:"+str(self.ids['MSG_OUT'].text)
+        print("\nSEND:\n >> ", to_send)
+        self.FM.write_file("SOCKET_DATA/MSG_OF.txt", to_send, "$%:", "w")
+
     def chat_info(self):
         print("[CHAT_INFO]")
         msg_ = "GET_STATE*"+str(self.target_user)+"*"+str(self.FM.read_file("CHATS/CURRENT.txt", "&")[0])
-        print("[GET_STATE]:: ", str(msg_))
+        #print("[GET_STATE]:: ", str(msg_))
 
         self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", msg_, "*", "w")
-        print("CHATS_TO_BE_DONE")
+        #print("CHATS_TO_BE_DONE")
         self.state = self.FM.read_file("CHATS/TARGET_STATE.txt", "*")
-        print("SELF.STATE:: ", str(self.state))
+        #print("SELF.STATE:: ", str(self.state))
         try:
             self.ids['USER_STATUS'].text = str(self.state[1])
         except:
@@ -137,6 +179,11 @@ class Chats(Screen):
 
     def home(self):
         MDApp.get_running_app().root.current = 'Home'
+        self.FM.write_file("CHATS/CURRENT.txt", "Home", "&", "w")
+        Clock.unschedule(self.go_on)
+
+    def contacts(self):
+        MDApp.get_running_app().root.current = 'Contacts'
         self.FM.write_file("CHATS/CURRENT.txt", "Home", "&", "w")
         Clock.unschedule(self.go_on)
 
@@ -164,19 +211,16 @@ class Add_C(Screen):
         if "KHONA" in ret_val or "FAIL" in ret_val:
             added_cont = '1'
             print("ADDING_CONTACT_FAILED")
-#            MDApp.get_running_app().root.current = 'Home'
             Add_fail().open()
 
         elif "ADDED" in ret_val:
             added_cont = '1'
             print("CONTACT_ADDED_SUCCESSFULLAI")
-#            MDApp.get_running_app().root.current = 'Home'
             Add_Success().open()
 
 
     def back(self):
         MDApp.get_running_app().root.current = 'Home'
-
 
 
 #*********************************************************************************************************
@@ -220,12 +264,13 @@ class Contacts(Screen):
 #CONTACT_BUTTONS
 class Chat_Buttons(Button):
     root_widget = ObjectProperty()
-
     def on_release(self, **kwargs):
         super().on_release(**kwargs)
         self.FM = File_man()
         print("INST:ON_R: ", str(self.text))
         if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
+            if self.text:
+                self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
             print("OPENING_CHATS", str(self.text))
             self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
             MDApp.get_running_app().root.current = 'Chats'
@@ -374,6 +419,9 @@ class MyMDApp(MDApp):
         self.FM.write_file("SOCKET_DATA/IN_BOUND.txt", "", "*", "w")
         self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "", "*", "w")
         self.FM.write_file("SOCKET_DATA/USER.txt", "", "*", "w")
+        self.FM.write_file("SOCKET_DATA/MSG_TO.txt", "", "*", "w")
+        self.FM.write_file("SOCKET_DATA/MSG_OF.txt", "", "*", "w")
+
 
         #CHATS_DATA
         self.FM.write_file("CHATS/CONTS.txt", "", "*", "w")

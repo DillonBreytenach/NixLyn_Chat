@@ -47,7 +47,7 @@ class File_man():
                 #print("WRITING LIST:: ", str(data))
             elif type(data) == str and len(data) == 0:
                 text = ""
-            print(f'TEXT_TO_WRITE: \n> {text} \n> [To]: {file_name}')      
+            #print(f'TEXT_TO_WRITE: \n> {text} \n> [To]: {file_name}')      
             with open(file_name, rwm) as wf:
                 wf.write(text)
                 wf.close()
@@ -57,10 +57,10 @@ class File_man():
         path_to_file = file_name
         path = Path(path_to_file)
         if path.is_file():
-            print(f'[file exists] : {file_name}')
+            #print(f'[file exists] : {file_name}')
             return True
         else:
-            print(f'![file does not exists]! : {file_name}')
+            #print(f'![file does not exists]! : {file_name}')
             return False
 
 

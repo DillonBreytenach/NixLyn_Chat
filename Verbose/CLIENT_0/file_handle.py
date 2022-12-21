@@ -35,11 +35,13 @@ class File_man():
                 return "ERROR_READING_FILE"
     
     def write_file(self, file_name, data, delim, rwm):
+        if file_name == "MSGS/['A'].txt":
+            return
         text = ""
         fc = self.check_file(file_name)
         if fc == False:
             os.system('touch ' + file_name)
-            #print("FILE_MADE: ", str(file_name))
+            print("FILE_MADE: ", str(file_name))
 
         if file_name:
             if type(data) == str:

@@ -54,7 +54,7 @@ class connections():
                             self.FM.write_file("SOCKET_DATA/IN_BOUND.txt", data, "*", "w")
                             #UPDATE CONTACTS LIST DATA
                             if "STATE" in data:
-                                print("[GOT_TARGET_USER_STATE]::", str(data))
+                                #print("[GOT_TARGET_USER_STATE]::", str(data))
                                 self.FM.write_file("CHATS/TARGET_STATE.txt", data, "*", "w")
                             if "CONTS" in data:
                                 c_list = data.split("*")
@@ -72,10 +72,13 @@ class connections():
     def send_msg(self):
         self.E = threading.Event()
         self.data = ""
+        self.msg = ""
         print("[SEND_MSG]:[RUNNING]")
         path = "SOCKET_DATA/OUT_BOUND.txt"
+        msg_pat = "SOCKET_DATA/MSG_OF.txt"
         #CHECK OUT_BOUND<FILE> CHANGES
         try:
+            self.init_msg = str(self.FM.read_file(msg_pat, ""))
             self.init_data = str(self.FM.read_file(path, "*"))
             #print("INIT_DATA:: ", self.init_data)
         except:
@@ -84,6 +87,7 @@ class connections():
             while True:
                 #UPDATE 
                 try:
+                    # SERVER COMMS
                     self.data = self.FM.read_file(path, "*")
                     if str(self.init_data) is str(self.data):
                         #print("[SEND_MSG]::[NO_UPDATE]")
@@ -107,11 +111,34 @@ class connections():
                             #print(f"INIT_DATA ::\n>{self.init_data}\nN_DATA ::\n>{self.data}\n")
                             toSend = ""
                         except Exception as e:
-                            print("[FUCKUP]::SEND_MSG::", str(e))
+                            print("[FUCKUP]::SEND_MSG:TO_SERVER:", str(e))
+
+                    # MSGS
+                    self.msg = self.FM.read_file(msg_pat, "$%:")
+                    if str(self.init_msg) is str(self.msg):
+                        pass
+
+                    elif self.init_msg != self.msg and len(self.msg) > 1:
+                        toSend = ""
+                        for _ in self.msg:
+                            toSend+=str(_)+"*"
+
+                        msg_len = len(toSend)
+                        send_len = str(msg_len).encode()
+                        send_len += b' ' * (64 - len(send_len))
+                        try:
+                            self.sock.send(send_len)
+                            self.sock.send(toSend.encode())
+                            #print("toSend:: ", str(toSend))
+                            #RESET DATA
+                            self.init_msg = self.msg
+                            #print(f"INIT_DATA ::\n>{self.init_data}\nN_DATA ::\n>{self.data}\n")
+                            toSend = ""
+                        except Exception as e:
+                            print("[FUCKUP]::SEND_MSG:TO_CONTACT:", str(e))
+
                 except Exception as e:
                     print("[SEND_MSG]:[LOOP_ERROR] >", str(e))
-                    
-
         except Exception as e:
             print("SENDING_ERROR::", str(e))
             sys.exit(1)

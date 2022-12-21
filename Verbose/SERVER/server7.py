@@ -139,11 +139,10 @@ class server():
                 print("ADDING_CONT_ERROR", str(e))
 
 
-
     #GET_STATUS
     def get_user_state(self, user):
         #TARGET_USER...
-        print("GET_USER_STATE:: ", str(user))
+        #print("GET_USER_STATE:: ", str(user))
         f_name = "USERS/"+str(user)+".txt"
         user_data = self.FM.read_file(f_name, "*")
         if "ONLINE" in str(user_data):
@@ -156,12 +155,12 @@ class server():
         # ->get_file_data -> fileter to list
         # data[0] = action
         # data[1] = USER
-        print("\n\n####\nUSER_UPDATE\n####")
+        #print("\n\n####\nUSER_UPDATE\n####")
         f_name = "USERS/"+str(user)+".txt"
         user_data = self.FM.read_file(f_name, "*")
         # user_data[4] = ONLINE/OFFLINE
         user_update = []
-        print(f"LEN(USER_DATA) > {str(len(user_data))}")
+        #print(f"LEN(USER_DATA) > {str(len(user_data))}")
         if len(user_data) >= 6:
             for i, _ in enumerate(user_data):
                 if _ and i != 4:
@@ -174,16 +173,15 @@ class server():
         try:
             if "ONLINE" in state:
                 # -> update_State >> ONLINE
-                print(f"{str(user)} :: ONLINE")
+                #print(f"{str(user)} :: ONLINE")
                 user_update[4] = "ONLINE"
-#
+
             if "OFFLINE" in state:
                 # -> update_State >> OFFLINE
                 print(f"{str(user)} :: OFFLINE")
                 user_update[4] = "OFFLINE"
         except Exception as r:
             print("USER_UPDATE_ERROR: ", str(r))
-#        finally:
 
 
     #LOGIN
@@ -268,9 +266,6 @@ class server():
             contacts_file = "CONTS/"+User+".txt"
             new_ = "USER*"+User+"*"+PSWD+"*"+"__CLIENT__"+"*"+"ONLINE"+"*"+contacts_file+"*"+msgs_file+"*"
             print("NEW__:: ", str(new_))
-
-
-
             self.FM.write_file(file_name, new_, "*", "w")
             self.FM.write_file(msgs_file, "EMPTY", "*","w")
             self.FM.write_file(contacts_file, "EMPTY", "%", "w")
@@ -278,9 +273,22 @@ class server():
         except Exception as e:
             print("CREATE_USER_ERROR:", str(e))
 
+    # MESSAGING
+    def msg_to(self, data):
+        print("\n\nGET_MSG\n\n")
+        break_msg = data.split("*")
+        print("TO : ", str(break_msg[1]))
+        print("MSG: ", str(break_msg[2]))
+        pass
+
+    def msg_of(self, data):
+        pass
+
+
     #CLIENT_THREAD_HANDLE
     def handle_client(self, conn, addr):
         try:
+            connections = True
             self.user = ""
             self.active = False
             self.get_conts = False
@@ -295,7 +303,7 @@ class server():
             self.reply(conn, "WELCOME")
         except Exception as e:
             print("[ERROR_SETTING_VARIABLES]: ", str(e))
-        while True:
+        while connections == True:
             print("[CURRENT_USER] :: ", str(self.user))
             if len(self.user) > 0:
                 self.update_User(client, self.user, "ONLINE")
@@ -321,7 +329,18 @@ class server():
                         print(f'[CLIENT_DISCONNECTED]: {addr} ')
                         if self.user:
                             self.update_User(client, self.user, "OFFLINE")
+                            connections = False
                         sys.exit(1)
+
+
+                    # MESSAGING
+                    if "MSG_TO" in data:
+                        self.msg_to(data)
+                        pass
+                    if "MSG_OF" in data:
+                        self.msg_of(data)
+                        pass
+
 
                     #ONLINE
                     if "ONLINE" in data:
@@ -334,7 +353,7 @@ class server():
                             self.update_User(client, self.user, "ONLINE")
                     #GET_STATE
                     if "GET_STATE" in data:
-                        print("GET_STATE::: >>")
+                        #print("GET_STATE::: >>")
                         data_list = str(data).split("*")
                         target_user = str(data_list[2])
                         state = self.get_user_state(target_user)
@@ -445,6 +464,7 @@ class server():
                     print('CLIENT_HANDLE_ERROR: ', str(e))
                     if self.user:
                         self.update_User(client, self.user, "OFFLINE")
+                        connections = False
                     sys.exit(1)
 
             
@@ -452,6 +472,7 @@ class server():
                 print("[FAILED_TO_RECEIVE]: ", str(e))
                 if self.user:
                     self.update_User(client, self.user, "OFFLINE")
+                    connections = False
             finally:
                 print("RESETTING_LOOP")
                 data = ""

@@ -214,9 +214,10 @@ WindowManager:
         Button:
             id: CONTACTS
             text: "CONTACTS"
-            disabled: True
+            disabled: False
             size_hint: .5, .1
             pos_hint: {'x': 0.5,'y': 0.8}
+            on_release: root.contacts()
 
         Button:
             id: EXIT
@@ -226,6 +227,17 @@ WindowManager:
             on_press: root.back()
 
 
+        TextInput:
+            id: MSG_OUT
+            size_hint: .8, .1
+            pos_hint: {'x': 0.0,'y': 0.0}
+
+        Button:
+            id: SEND_IT
+            text: "SEND"
+            size_hint: .2, .1
+            pos_hint: {'x': 0.8,'y': 0.0}
+            on_press: root.send_it()
 #-----------------------------------------------------------------------------------------------------
     #MAIN_PROFILE_HANDLE
 <Home>:
