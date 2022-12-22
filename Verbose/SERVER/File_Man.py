@@ -83,6 +83,21 @@ class File_man():
             print("[ERROR]:[MAKE_FOLDER]", str(e))
 
 
+    def get_file_data(self, dir):
+        # Initialize an empty string to store the file data
+        data = ''
+
+        # Loop through the files in the directory
+        for filename in os.listdir(directory):
+          # Open the file and read its contents
+          with open(os.path.join(directory, filename), 'r') as f:
+            file_data = f.read()
+            # Append the file data to the string, separated by the delimiter
+            data += file_data + '@%$'
+
+        # Print the resulting string
+        print(data)
+
  #   def load_key(self):   
  #       """
  #       Loads the key from the current directory named `key.key`

@@ -56,8 +56,7 @@ class Login_Fail(Popup):
     print("LOGIN_FAIL")
 class Welcome(Popup):
     print("WELCOME")
-    msg_ = "ONLINE*"+str(File_man().read_file("SOCKET_DATA/USER.txt", "*"))[2:-2]
-    File_man().write_file("SOCKET_DATA/OUT_BOUND.txt", msg_, "*", "w")
+
 class Reg_Fail(Popup):
     print("REGISTER_FAILED")
 
@@ -94,31 +93,42 @@ class Search(Screen):
 #*********************************************************************************************************
 class Chat_Msgs(Button):
     root_widget = ObjectProperty()
-
     def on_release(self, **kwargs):
         super().on_release(**kwargs)
         self.FM = File_man()
         print("MSG:ON_R: ", str(self.text))
-        
-        #if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
-        #    print("OPENING_CHATS", str(self.text))
-        #    self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
-        #    MDApp.get_running_app().root.current = 'Chats'
 
 class Scroll_Chats(RecycleView): 
     def __init__(self, **kw):
         super(Scroll_Chats, self).__init__(**kw)
         self.FM = File_man()
+
         print("[Scroll_Chats]:: INIT")
         Clock.schedule_interval(self.go_on, 1)
 
     def go_on(self, inst):
-        #print("[Scroll_Me]::[Go_On]")
-        cont = self.FM.read_file("CHATS/CURRENT.txt", "%")
-        chat = self.FM.read_file(f"MSGS/{str(cont)[2:-2]}.txt", "*$")[:-1]
-        if chat:
-            #print("[ASSIGNING_CHATS]::[SCROLL_CHATS]")
-            self.data = [{'text': str(x), "root_widget": self} for x in chat if x]
+        try:
+            user_data = self.FM.read_file("CHATS/CURRENT.txt", "*")
+            if user_data:
+                #print("[GOT_TARGET_USER]:", str(user_data))
+                self.target_user = str(user_data[0])
+                user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
+                user_name = str(user_data[0])
+                get_msgs = "MSG_OF*"+str(user_name)+"*"+str(self.target_user)+"*"
+                self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "*", "w")
+
+                #print("[Scroll_Me]::[Go_On]")
+                cont = self.FM.read_file("CHATS/CURRENT.txt", "%")
+                chat = self.FM.read_file(f"MSGS/{str(cont)[2:-2]}.txt", "*$")[:-1]
+                if chat:
+                    #print("[ASSIGNING_CHATS]::[SCROLL_CHATS]")
+                    self.data = [{'text': str(x), "root_widget": self} for x in chat if x]
+                    #self.FM.write_file("SOCKET_DATA/MSG_TO.txt", "", "*", "w")
+
+        except Exception as e:
+            print("[ERROR]:[SCROLL_CHATS]:", str(e))
+
+
 
 
     def goToUpdate(self):
@@ -129,7 +139,7 @@ class Chats(Screen):
         super().__init__(**kw)
         self.FM = File_man()
         self.state = ""
-
+        self.target_user = ""
 
 
     def on_enter(self):
@@ -139,12 +149,21 @@ class Chats(Screen):
 
     def go_on(self, inst):
         #print("[CHATS]::[Go_On]")
-        self.target_user = ""
+
         user_data = self.FM.read_file("CHATS/CURRENT.txt", "*")
         self.target_user = str(user_data[0])
         self.ids['TARGET_USER'].text = str(self.target_user)
         self.chat_info()
 
+        try:
+
+            # TEMP_DOWN
+            user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
+            user_name = str(user_data[0])
+            get_msgs = "MSG*"+str(user_name)+"*"+str(self.target_user)+"*"
+            #self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "*", "w")
+        except Exception as e:
+            print("[ERROR]:[CHATS]:[GO_ON]:", str(e))
 
     def send_it(self):
         user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
@@ -152,6 +171,7 @@ class Chats(Screen):
         to_send = "MSG_TO$%:"+str(self.target_user)+"$%:"+self.user_name+"$%:"+str(self.ids['MSG_OUT'].text)
         print("\nSEND:\n >> ", to_send)
         self.FM.write_file("SOCKET_DATA/MSG_TO.txt", to_send, "$%:", "w")
+        # REMEMBER TO CLEAR THE InputText
 
     def chat_info(self):
         #print("[CHAT_INFO]")
@@ -215,6 +235,8 @@ class Add_C(Screen):
         MDApp.get_running_app().root.current = 'Home'
 
 
+
+
 #*********************************************************************************************************
 #CONTACTS_PAGE
 #*********************************************************************************************************
@@ -239,7 +261,7 @@ class Contacts(Screen):
     def get_conts(self):
         #print("[GET_CONTS]")
         msg_ = "CONTS*"+str(self.user_name)
-        self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", msg_, "*", "w")
+        self.FM.write_file("SOCKET_DATA/CONTS.txt", msg_, "*", "w")
 
     def add_c(self):
         print("ADDING_CONTACT -> SCREEN")
@@ -264,6 +286,23 @@ class Chat_Buttons(Button):
         super().on_release(**kwargs)
         self.FM = File_man()
         print("INST:ON_R: ", str(self.text))
+
+
+
+        # WTF ??
+        try:
+            user_name = str(self.FM.read_file("SOCKET_DATA/USER.txt", "*")[0])
+            if self.text:
+                print("[GOT_T_USER]:", str(self.text))
+                get_msgs = "MSG*"+str(user_name)+"*"+str(self.text)+"*"
+                self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "*", "w")
+        except Exception as e:
+            print("[ERROR]:[CHAT_BUTTON]:", str(e))
+
+
+
+
+
         if len(self.FM.read_file("CHATS/CURRENT.txt", "&")) == 0:
             if self.text:
                 self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
@@ -272,6 +311,8 @@ class Chat_Buttons(Button):
             MDApp.get_running_app().root.current = 'Chats'
         else:
             self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
+
+
 
 #CONTACT_LIST_SCROLLER
 class Scroll_Me(RecycleView):
@@ -413,8 +454,8 @@ class WindowManager(ScreenManager):
 #*********************************************************************************************************
 #MAIN
 class MyMDApp(MDApp):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, **kw):
+        super(MyMDApp, self).__init__(**kw)
         self.FM = File_man()
         self.start_up()
 
@@ -422,6 +463,7 @@ class MyMDApp(MDApp):
         #SOCKET_DATA
         self.FM.write_file("SOCKET_DATA/IN_BOUND.txt", "", "*", "w")
         self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "", "*", "w")
+        self.FM.write_file("SOCKET_DATA/CONTS.txt", "", "*", "w")
         self.FM.write_file("SOCKET_DATA/USER.txt", "", "*", "w")
         self.FM.write_file("SOCKET_DATA/MSG_TO.txt", "", "*", "w")
         self.FM.write_file("SOCKET_DATA/MSG_OF.txt", "", "*", "w")

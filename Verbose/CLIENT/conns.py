@@ -7,6 +7,7 @@ try:
     import threading
     from threading import Thread, ThreadError
     from file_handle import File_man
+    import time
 except Exception as e:
     print("[IMPORT]::[ERROR]", str(e))
 
@@ -34,6 +35,80 @@ class connections():
             print('SOCK_ERROR:: ', str(e))
             sys.exit(1)
 
+
+
+    # FILTER MSG
+    def msg_of(self, data):
+        ls_data = []
+        collected_ = []
+
+
+        if "ACCESS_DENIED" in data:
+            self.FM.write_file("SOCKET_DATA/MSG_OF.txt", data, "*", "w")
+
+        if "SAVED" in data:
+            ls_data = data.split("*")
+
+            for i in ls_data:
+                print("MSG:: ", str(i))
+
+            if len(ls_data) >= 6:
+                user_ = str(ls_data[2])
+                dt_stamp = str(ls_data[4])
+                msg_of = str(ls_data[5])
+                target_file = "MSGS/"+user_+".txt"
+                to_save = dt_stamp+"*"+msg_of
+                self.FM.write_file(target_file, msg_of, "&", "a")
+                print("[MSG]::", to_save, ":[SAVED]:", target_file)
+
+        if "MSGS_OF" in data:
+            ls_data = data.split("&")
+
+            print("\n\n\nBOOM:\n\n  NOW FILTER THE MSG_DATA")
+            for i, val in enumerate(ls_data):
+                print("[MSG]:[i]:", str(i), ":[val]:", str(val))
+                time.sleep(2)
+
+                if len(val) == 0:
+                    pass
+
+                if "USER$" in val:
+                    sender_ = str(val.split("$")[1])
+                    print("[SEBDER]: ", str(sender_))
+
+                if len(val) > 16:
+                    if val[0]=="*" and val[5]=="/" and val[8]=="/" and val[11]=="-" and val[14]==":":
+                        print("THIS IS A COMPLETE MSG :P", str(val))
+                        collected_.append(val)
+                time.sleep(5)
+
+            print("[PREPARE_TO_WRITE]:")
+            for what in collected_:
+                print("COL:: ", str(what))
+            time.sleep(10)
+            file_name = f"MSGS/{sender_}.txt"
+            self.FM.write_file(file_name, collected_, "$", "w")
+
+            time.sleep(5)
+            print("AND NOW???")
+
+                # eg>  *2022/12/22-05:02*MSG*
+                # if:
+                    # [0]=="*"
+                    # [5]=="/"
+                    # [8]=="/"
+                    # [11]=="-"
+                    # [14]==":"
+            
+
+            # JUST A QUICK TEST
+
+
+            
+
+
+
+
     #RECEIVE
     def get_msg(self):
         print("[GET_MSG]:[RUNNING]")
@@ -48,34 +123,47 @@ class connections():
                 if int(data_len) > 0:
                     data = str(self.sock.recv(data_len).decode())
                     if data:
-                        #print("DATA RECVED:: ", str(data))
-                        if data:
-                            #WRITE ALL INCOMING DATA TO IN_BOUND<FILE>
-                            self.FM.write_file("SOCKET_DATA/IN_BOUND.txt", data, "*", "w")
-
-                            # LOG OFF
-                            if "GOODBYE" in data:
-                                print("LOGGED_OFF::", str(data))
+                        print("DATA RECVED:: ", str(data))
 
 
+                        #WRITE ALL INCOMING DATA TO IN_BOUND<FILE>
+                        self.FM.write_file("SOCKET_DATA/IN_BOUND.txt", data, "*", "w")
+                        # LOG OFF
+                        if "GOODBYE" in data:
+                            print("LOGGED_OFF::", str(data))
 
-                            #UPDATE CONTACTS LIST DATA
-                            if "STATE" in data:
-                                #print("[GOT_TARGET_USER_STATE]::", str(data))
-                                self.FM.write_file("CHATS/TARGET_STATE.txt", data, "*", "w")
-                            if "CONTS" in data:
-                                c_list = data.split("*")
-                                if "EMPTY" not in c_list:
-                                    #print("C_LIST.. ", str(c_list[1]))
-                                    self.FM.write_file("CHATS/CONTS.txt", str(c_list[1]), "%", "w")
-                                    self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "", "%", "w")
-                            # GET MSGS
-                        data_len = 0
+                        # MESSAGING 
+                        elif "MSG" in data:
+                            print("[MSG_IN]:", str(data))
+                            self.msg_of(data)
+
+                        #UPDATE CONTACTS LIST DATA
+                        elif "STATE" in data:
+                            #print("[GOT_TARGET_USER_STATE]::", str(data))
+                            self.FM.write_file("CHATS/TARGET_STATE.txt", data, "*", "w")
+
+                        # CONTACTS
+                        elif "CONTS" in data:
+                            c_list = data.split("*")
+                            if "EMPTY" not in c_list:
+                                #print("C_LIST.. ", str(c_list[1]))
+                                self.FM.write_file("CHATS/CONTS.txt", str(c_list[1]), "%", "w")
+                                self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "", "%", "w")
+
+
+                    data_len = 0
             except Exception as e:
                 print("[SOCKET CLOSED]")
                 print(str(e)) 
                 self.sock.close()
                 sys.exit(1)
+
+
+
+
+
+
+
 
     #TRANSMIT
     def send_msg(self):
@@ -85,10 +173,12 @@ class connections():
         print("[SEND_MSG]:[RUNNING]")
         path = "SOCKET_DATA/OUT_BOUND.txt"
         msg_pat = "SOCKET_DATA/MSG_TO.txt"
+        cont_path = "SOCKET_DATA/CONTS.txt"
         #CHECK OUT_BOUND<FILE> CHANGES
         try:
             self.init_msg = str(self.FM.read_file(msg_pat, ""))
             self.init_data = str(self.FM.read_file(path, "*"))
+            self.init_conts = str(self.FM.read_file(cont_path, "*"))
             #print("INIT_DATA:: ", self.init_data)
         except:
             print("conns.py::send_msg():: ERROR??")
@@ -96,14 +186,15 @@ class connections():
             while True:
                 #UPDATE 
                 try:
-                    # SERVER COMMS
-                    self.data = self.FM.read_file(path, "*")
-                    if str(self.init_data) is str(self.data):
-                        #print("[SEND_MSG]::[NO_UPDATE]")
-                        #self.E.wait()
-                        pass
 
-                    elif self.init_data != self.data and len(self.data) > 1:
+                    # PATHS
+                    self.data = self.FM.read_file(path, "*")
+                    self.msg = self.FM.read_file(msg_pat, "*")
+                    self.conts = self.FM.read_file(cont_path, "*")
+
+
+                    if self.init_data != self.data and len(self.data) > 1:
+                        print(f"INIT: {self.init_data} :: DATA: {self.data} \n ")
                         toSend = ""
                         for _ in self.data:
                             toSend+=str(_)+"*"
@@ -121,11 +212,36 @@ class connections():
                             toSend = ""
                         except Exception as e:
                             print("[FUCKUP]::SEND_MSG:TO_SERVER:", str(e))
+                            time.sleep(1000)
+                            break
+
+
+
+                    elif self.init_conts != self.conts and len(self.conts) > 1:
+                        toSend = ""
+                        for _ in self.conts:
+                            toSend+=str(_)+"*"
+
+                        msg_len = len(toSend)
+                        send_len = str(msg_len).encode()
+                        send_len += b' ' * (64 - len(send_len))
+                        try:
+                            self.sock.send(send_len)
+                            self.sock.send(toSend.encode())
+                            #print("toSend:: ", str(toSend))
+                            #RESET DATA
+                            self.init_conts = self.conts
+                            #print(f"INIT_DATA ::\n>{self.init_data}\nN_DATA ::\n>{self.data}\n")
+                            toSend = ""
+                            print("[MSG_SENT]:", str(toSend))
+                        except Exception as e:
+                            print("[FUCKUP]::SEND_MSG:TO_CONTACT:", str(e))
+                            break
+
+
+
 
                     # MSGS
-                    self.msg = self.FM.read_file(msg_pat, "$%:")
-                    if str(self.init_msg) is str(self.msg):
-                        pass
 
                     elif self.init_msg != self.msg and len(self.msg) > 1:
                         toSend = ""
@@ -143,11 +259,16 @@ class connections():
                             self.init_msg = self.msg
                             #print(f"INIT_DATA ::\n>{self.init_data}\nN_DATA ::\n>{self.data}\n")
                             toSend = ""
+                            print("[MSG_SENT]:", str(toSend))
                         except Exception as e:
                             print("[FUCKUP]::SEND_MSG:TO_CONTACT:", str(e))
+                            break
 
                 except Exception as e:
                     print("[SEND_MSG]:[LOOP_ERROR] >", str(e))
+                    break
         except Exception as e:
             print("SENDING_ERROR::", str(e))
             sys.exit(1)
+
+

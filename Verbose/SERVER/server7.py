@@ -307,10 +307,20 @@ class server():
 
         print("TO_SAVE:: ", str(to_send))
 
-        file_name = "MSGS/"+to_user+"/"+of_user+".txt"
 
+        file_name = "MSGS/"+to_user+"/"+of_user+".txt"
         print("FILE-> ", str(file_name))
 
+        check_file = self.FM.check_file(file_name)
+        if check_file == True:
+            print("[ACCESS_GRANTED]")
+            self.FM.write_file(file_name, to_send, "&", "a")
+            ret_ = "MSG*SAVED*"+to_user+"*"+to_send+"*"
+            return ret_
+
+        else:
+            print("[ACCESS_DENIED]")
+            return "MSG*ACCESS_DENIED*"+to_user+"*"+to_send+"*"
 
         # CONFIGURE THE 
 
@@ -337,7 +347,28 @@ class server():
 
 
     def msg_of(self, data):
-        pass
+        print("MSG_OF:: ", str(data))
+        dataLs = data.split("*")
+
+        dir_ = "MSGS/"+str(dataLs[1])+"/"
+    
+        if "ALL" in str(dataLs[2]):
+            msgs_all = self.FM.get_file_data(dir_)
+            if msgs_all:
+                return "MSGS_ALL*"+str(msgs_all)
+            else:
+                return "MSGS&ERROR"
+
+        if "ALL" not in data and len(dataLs) >= 3:
+            file_name = dir_+str(dataLs[2])+".txt"
+            msg_from = self.lst_to_str(self.FM.read_file(file_name, "&"), "&")
+            if msg_from:
+                ret_ = "MSGS_OF*USER$"+str(dataLs[2])+"$*"+str(msg_from)
+                print("\n[RET_]:", str(ret_), "\n^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+                return ret_
+            else:
+                return "MSGS&ERROR"
+
 
     #CLIENT_THREAD_HANDLE
     def handle_client(self, conn, addr):
@@ -392,11 +423,22 @@ class server():
 
                     # MESSAGING
                     if "MSG_TO" in data:
-                        self.msg_to(data)
-                        pass
+                        print("[MSG_TO]:", str(data))
+                        ret_ = self.msg_to(data)
+                        if ret_:
+                            self.reply(conn, ret_)
+                        else:
+                            self.reply(conn, "ERROR*LOGGING*MSG")
+                        continue
+
                     if "MSG_OF" in data:
-                        self.msg_of(data)
-                        pass
+                        print("[MSG_OF]:", str(data))
+                        ret_ = self.msg_of(data)
+                        if ret_:
+                            self.reply(conn, ret_)
+                        else:
+                            self.reply(conn, "ERROR*LOGGING*MSG")                            
+                        continue
 
 
                     #OFFLINE
