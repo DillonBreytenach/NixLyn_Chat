@@ -23,7 +23,7 @@ try:
 
     #PROPERTIES
     import kivy.properties
-    from kivy.properties import ObjectProperty
+    from kivy.properties import ObjectProperty, StringProperty
 
     #KIVY_UIX
     from kivy.uix.boxlayout import BoxLayout
@@ -102,7 +102,8 @@ class Scroll_Chats(RecycleView):
     def __init__(self, **kw):
         super(Scroll_Chats, self).__init__(**kw)
         self.FM = File_man()
-
+        self.init_data = ""
+        self.target_user = ""
         print("[Scroll_Chats]:: INIT")
         Clock.schedule_interval(self.go_on, 1)
 
@@ -121,14 +122,12 @@ class Scroll_Chats(RecycleView):
                 cont = self.FM.read_file("CHATS/CURRENT.txt", "%")
                 chat = self.FM.read_file(f"MSGS/{str(cont)[2:-2]}.txt", "*$")[:-1]
                 if chat:
-                    #print("[ASSIGNING_CHATS]::[SCROLL_CHATS]")
+                    print("[ASSIGNING_CHATS]::[SCROLL_CHATS]")
                     self.data = [{'text': str(x), "root_widget": self} for x in chat if x]
                     #self.FM.write_file("SOCKET_DATA/MSG_TO.txt", "", "*", "w")
 
         except Exception as e:
             print("[ERROR]:[SCROLL_CHATS]:", str(e))
-
-
 
 
     def goToUpdate(self):
@@ -312,16 +311,19 @@ class Chat_Buttons(Button):
         else:
             self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
 
-
-
 #CONTACT_LIST_SCROLLER
 class Scroll_Me(RecycleView):
     def __init__(self, **kw):
         super(Scroll_Me, self).__init__(**kw)
+        # GET SCREEN NAME HERE
         self.FM = File_man()
         print("[Scroll_Me]:: INIT")
         Clock.schedule_interval(self.go_on, 1)
-    
+
+
+    def current(self, inst):
+        print("INST:: ", str(inst))
+
 
     def go_on(self, inst):
         #print("[Scroll_Me]::[Go_On]")

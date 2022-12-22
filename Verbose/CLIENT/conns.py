@@ -67,29 +67,23 @@ class connections():
             print("\n\n\nBOOM:\n\n  NOW FILTER THE MSG_DATA")
             for i, val in enumerate(ls_data):
                 print("[MSG]:[i]:", str(i), ":[val]:", str(val))
-                time.sleep(2)
-
                 if len(val) == 0:
                     pass
-
                 if "USER$" in val:
                     sender_ = str(val.split("$")[1])
                     print("[SEBDER]: ", str(sender_))
-
                 if len(val) > 16:
                     if val[0]=="*" and val[5]=="/" and val[8]=="/" and val[11]=="-" and val[14]==":":
                         print("THIS IS A COMPLETE MSG :P", str(val))
                         collected_.append(val)
-                time.sleep(5)
 
             print("[PREPARE_TO_WRITE]:")
             for what in collected_:
                 print("COL:: ", str(what))
-            time.sleep(10)
+
             file_name = f"MSGS/{sender_}.txt"
             self.FM.write_file(file_name, collected_, "$", "w")
 
-            time.sleep(5)
             print("AND NOW???")
 
                 # eg>  *2022/12/22-05:02*MSG*
