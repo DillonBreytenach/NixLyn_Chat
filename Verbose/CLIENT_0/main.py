@@ -99,6 +99,7 @@ class Chat_Msgs(Button):
         super().on_release(**kwargs)
         self.FM = File_man()
         print("MSG:ON_R: ", str(self.text))
+        
         #if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
         #    print("OPENING_CHATS", str(self.text))
         #    self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
@@ -167,16 +168,17 @@ class Chats(Screen):
             print("TARGET_STATE_NOT_YET_LOADED")
 
     def home(self):
+        self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
         MDApp.get_running_app().root.current = 'Home'
-        self.FM.write_file("CHATS/CURRENT.txt", "Home", "&", "w")
         Clock.unschedule(self.go_on)
 
     def contacts(self):
+        self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
         MDApp.get_running_app().root.current = 'Contacts'
-        self.FM.write_file("CHATS/CURRENT.txt", "Home", "&", "w")
         Clock.unschedule(self.go_on)
 
     def back(self):
+        self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
         user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
         self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "LOGOUT*"+str(user_data)[2:-2]+"*OFFLINE", "*", "w")
         MDApp.get_running_app().root.current = 'Main_WID'
@@ -196,14 +198,14 @@ class Add_C(Screen):
         msg_ = "NEW_C*"+str(File_man().read_file("SOCKET_DATA/USER.txt", "*"))[2:-2]+"*"+ str(self.ids.NEW_CONTACT.text)
         print("ADDING_C", str(msg_))
         File_man().write_file("SOCKET_DATA/OUT_BOUND.txt", msg_, "*", "w")
-        time.sleep(1)
+        time.sleep(2)
         ret_val = str(File_man().read_file("SOCKET_DATA/IN_BOUND.txt", "*"))
         if "KHONA" in ret_val or "FAIL" in ret_val:
             added_cont = '1'
             print("ADDING_CONTACT_FAILED")
             Add_fail().open()
 
-        elif "ADDED" in ret_val:
+        elif "ADD_C" in ret_val:
             added_cont = '1'
             print("CONTACT_ADDED_SUCCESSFULLAI")
             Add_Success().open()
@@ -250,6 +252,7 @@ class Contacts(Screen):
 
     def back(self):
         user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
+        self.FM.write_file("CHATS/CURRENT.txt", "Home", "&", "w")
         self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "LOGOUT*"+str(user_data)[2:-2]+"*OFFLINE", "*", "w")
         MDApp.get_running_app().root.current = 'Main_WID'
         Clock.unschedule(self.go_on)
@@ -261,12 +264,14 @@ class Chat_Buttons(Button):
         super().on_release(**kwargs)
         self.FM = File_man()
         print("INST:ON_R: ", str(self.text))
-        if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
+        if len(self.FM.read_file("CHATS/CURRENT.txt", "&")) == 0:
             if self.text:
                 self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
             print("OPENING_CHATS", str(self.text))
             self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
             MDApp.get_running_app().root.current = 'Chats'
+        else:
+            self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
 
 #CONTACT_LIST_SCROLLER
 class Scroll_Me(RecycleView):

@@ -118,6 +118,19 @@ WindowManager:
 
 #-----------------------------------------------------------------------------------------------------
     #CONTACTS && CHATS
+
+<Chat_Buttons>:
+    # Default style for the button
+    font_size: 20
+    size_hint: (1, None)
+    height: 50
+    background_color: (0.7, 0.9, 1, 1)
+    color: (0, 0, 0, 1)
+
+    #   ??
+    #    border_radius: (10, 10, 0, 0)
+
+
 <Scroll_Me>:
     viewclass: "Chat_Buttons"
     RecycleBoxLayout:
@@ -127,6 +140,8 @@ WindowManager:
         orientation: 'vertical'
         height: self.minimum_height
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+
+
 <Contacts>:
     id: Contacts
     name: 'Contacts'
@@ -238,6 +253,8 @@ WindowManager:
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.0}
             on_press: root.send_it()
+
+
 #-----------------------------------------------------------------------------------------------------
     #MAIN_PROFILE_HANDLE
 <Home>:

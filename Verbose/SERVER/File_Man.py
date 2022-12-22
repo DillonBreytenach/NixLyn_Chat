@@ -64,6 +64,23 @@ class File_man():
             return False
 
 
+    def check_folder(self, folder_name):
+        if not os.path.isdir(folder_name):
+            print(f"Error: {folder_name} does not exist")
+            return False
+        return True
+
+
+
+    def make_dir(self, target_folder):
+        try:
+            is_fold = self.check_folder(target_folder)
+            if is_fold == False:
+                os.system('mkdir ' + target_folder)
+            return
+        except Exception as e:
+            print("[ERROR]:[MAKE_FOLDER]", str(e))
+
 
  #   def load_key(self):   
  #       """

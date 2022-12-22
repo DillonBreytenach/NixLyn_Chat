@@ -1,1 +1,0 @@
-USER*A*a*__CLIENT__*OFFLINE*CONTS/A.txt*MSGS/A.txt*

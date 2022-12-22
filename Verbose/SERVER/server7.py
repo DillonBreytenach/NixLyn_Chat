@@ -263,12 +263,12 @@ class server():
 
         try:
             file_name = "USERS/"+User+".txt"
-            msgs_file = "MSGS/"+User+".txt"
+            msgs_folder = "MSGS/"+User
             contacts_file = "CONTS/"+User+".txt"
-            new_ = "USER*"+User+"*"+PSWD+"*"+"__CLIENT__"+"*"+"ONLINE"+"*"+contacts_file+"*"+msgs_file+"*"
+            new_ = "USER*"+User+"*"+PSWD+"*"+"__CLIENT__"+"*"+"ONLINE"+"*"+contacts_file+"*"+msgs_folder+"*"
             print("NEW__:: ", str(new_))
+            self.FM.make_dir(msgs_folder)
             self.FM.write_file(file_name, new_, "*", "w")
-            self.FM.write_file(msgs_file, "EMPTY", "*","w")
             self.FM.write_file(contacts_file, "EMPTY", "%", "w")
             return new_
         except Exception as e:
@@ -364,16 +364,6 @@ class server():
                         pass
 
 
-                    #ONLINE
-                #    if "ONLINE" in data:
-                #        print(f'{addr}::[ONLINE]::{self.user}')
-                #        self.reply(conn, "HELLO")
-                #        self.active = True
-                #        data_list = str(data).split("*")
-                #        self.user = str(data_list[1])
-                #        if self.user:
-                #            self.update_User(client, self.user, "ONLINE")
-
                     #OFFLINE
                     if "OFFLINE" in data:
                         print(f'[ATTEMPT_LOGG_OFF]::{addr}::{user}\n::[DATA]::{data}')
@@ -411,7 +401,7 @@ class server():
                                 if conts_list:
                                     self.get_conts = True
                                     self.reply(conn, "ADD_C*"+str(conts_list))
-                                    pass
+                                    continue
 
                             else:
                                 print("[NEW_CONTS_ERROR]::")
