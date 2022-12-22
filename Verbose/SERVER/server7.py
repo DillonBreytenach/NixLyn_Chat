@@ -20,6 +20,7 @@ try:
     from threading import Thread, ThreadError
     import threading
     from File_Man import File_man
+    from datetime import datetime
 except Exception as e:
     print("[IPMORT]::[ERROR]:: ", str(e))
 
@@ -90,13 +91,14 @@ class server():
             user_file = self.FM.check_file(file_name)
             if user_file == True:
                 user_conts = self.FM.read_file(file_name, "%")
-                if len(user_conts) > 0:
+                if len(user_conts) > 0 and type(user_conts) == list:
                     try:
                         conts_lst_str = self.lst_to_str(user_conts, "%")
                         #print("CONTS:: ", str(conts_lst_str))
                         return conts_lst_str
                     except Exception as e:
                         print("RET_LIST_ERROR:: ", str(e))
+
 
                 else:
                     print("CONTS_EMPTY", str(conts_lst_str))
@@ -111,6 +113,8 @@ class server():
         #data[2] = new_cont
         user_f_name = "CONTS/"+str(data[1])+".txt"
         new_cont_f_name = "CONTS/"+str(data[2])+".txt"
+        msgs_f_name = "MSGS/"+str(data[1])
+        chat_f_name = "MSGS/"+str(data[1])+"/"+str(data[2])+".txt"
         print("data[2]:: ", str(data[2]))
         new_cont_c = self.FM.check_file(new_cont_f_name)
         if new_cont_c == True:
@@ -118,14 +122,11 @@ class server():
                 #GET_OLD_LIST
                 c_list = self.FM.read_file(user_f_name, "%")
                 print("C_LIST:: ", str(c_list))
-
                 #CHECK IF ALREADY THERE
                 n_list = []
-
                 if str(data[2]) in c_list:
                     print("KHONA")
                     return "KHONA"
-
                 if len(c_list) > 0:
                     for _ in c_list:
                         if "EMPTY" not in str(_) and len(_) > 0:
@@ -137,8 +138,11 @@ class server():
                     n_list.append(str(data[2]))
                     print("N_LIST:: ", str(n_list))
                     self.FM.write_file(user_f_name, n_list, "%", "w")
-                    return str(n_list)
+                    # CREATE CHAT DIRECTORY
+                    self.FM.make_dir(msgs_f_name)
+                    self.FM.write_file(chat_f_name, "INVITE_FROM*"+str(data[1])+"*TO*"+str(data[2])+"*", "&", "w")
 
+                    return str(n_list)
             except Exception as e:
                 print("ADDING_CONT_ERROR", str(e))
 
@@ -273,32 +277,63 @@ class server():
             return new_
         except Exception as e:
             print("CREATE_USER_ERROR:", str(e))
+            return "FAIL"
 
     # MESSAGING
     def msg_to(self, data):
+        ###
+        #	|-MSGS/
+    	#    	|-User1/
+    	#   		|-User2.txt -> "<date_time_1>$<msg_1>$<received_1>$&<date_time_2>$<msg_2>$<received_2>$&"
+
         print("\n\nGET_MSG\n\n")
         break_msg = data.split("*")
         print("TO : ", str(break_msg[1]))
         to_user = str(break_msg[1])
         print("OF : ", str(break_msg[2]))
+        of_user = str(break_msg[2])
         print("MSG: ", str(break_msg[3]))
+        the_msg = str(break_msg[3])
 
-        to_send = "*"+str(break_msg[2])+"*"+str(break_msg[3])
+        # DATE_TIME_STAMP
+
+        # Get the current date and time
+        now = datetime.now()
+
+        # Format the date and time as a string in the desired format
+        date_time_str = now.strftime("%Y/%m/%d-%H:%M")
+
+        to_send = "*"+date_time_str+"*"+the_msg
+
+        print("TO_SAVE:: ", str(to_send))
+
+        file_name = "MSGS/"+to_user+"/"+of_user+".txt"
+
+        print("FILE-> ", str(file_name))
+
+
+        # CONFIGURE THE 
+
+
+
+
+
+
         # WRITE MSG TO FILE
 
         # CHECK IF CLIENT IS ONLINE
             # SEND MSG ["DELIM","OF", "MSG"]
-        uc_state = self.get_user_state(str(break_msg[1]))
-        if "ONLINE" in uc_state:
-            # GET CURRENT IP ADDRESS
-            f_name = f"USERS/{to_user}.txt"
-            to_data = self.FM.read_file(f_name, "*")
-            if len(to_data) >= 6:
-                msgs_file = f"MSGS/{str(to_user)}.txt"
-                self.write_file(msgs_file, to_send, "&", "a")
-                return "SAVED"
-            else:
-                return "FAILED"
+        #uc_state = self.get_user_state(str(break_msg[1]))
+        #if "ONLINE" in uc_state:
+        #    # GET CURRENT IP ADDRESS
+        #    f_name = f"USERS/{to_user}.txt"
+        #    to_data = self.FM.read_file(f_name, "*")
+        #    if len(to_data) >= 6:
+        #        msgs_file = f"MSGS/{str(to_user)}.txt"
+        #        self.write_file(msgs_file, to_send, "&", "a")
+        #        return "SAVED"
+        #    else:
+        #        return "FAILED"
 
 
     def msg_of(self, data):
@@ -311,7 +346,7 @@ class server():
             self.user = ""
             user = ""
             self.active = False
-            self.get_conts = False
+            get_conts = False
             client = []
             client = [conn, addr]
             print("[Client]:[CONNECTED]:", str(client))
@@ -386,8 +421,6 @@ class server():
                         state_val =  "STATE*"+str(state)
                         self.reply(conn, state_val)
 
-
-
                     #PROFILE_HANDLE
 
                     #CONTACT_LOADER
@@ -409,7 +442,7 @@ class server():
                         except Exception as e:
                             print("[CONT_LOADING]::ERROR", str(e))
                     #GET_CONTACTS
-                    elif "CONTS" in data and self.get_conts == False:
+                    if "CONTS" in data and get_conts == False:
                         try:
                             #print("GETTING_CONTS:: ", str(data))
                             data_list = str(data).split("*")
@@ -430,25 +463,22 @@ class server():
                                     print("CONTS_LIST_EMPTY")
                                     self.reply(conn, "CONTS*EMPTY%0")
                                     data_list = []
-
-                                    self.get_conts = True
+                                    get_conts = True
                                     pass
 
                                 if "EMPTY" not in conts_list:
-                                    #print("GOT_CONTS:: ", str(conts_list))
                                     self.reply(conn, "CONTS*"+str(conts_list))
-                                    #self.conts_b = False
-
                                     pass
                             else:
                                 print("[CONTS]:[MISSING_ARGS]")
                                 # MAKE REROUTE...
                                 pass
                         except Exception as e:
-                            print("CONTS_ERROR:: ", str(e))
-                            self.reply(conn, "CONTS*ERROR")
+                            print("[CONTS_GLITCH]:: ", str(e))
+                            #self.reply(conn, "CONTS*ERROR")
+                            pass
                     #REGISTER
-                    elif "REG" in data:
+                    if "REG" in data:
                         try:
                             print("REG_NEW_USER::: ", str(data))
                             t = self.Reg_User(data, client)
@@ -466,7 +496,7 @@ class server():
                         except Exception as e:
                             print("CHECK_PLAYER::ERROR:: ", str(e))
                     #LOGIN
-                    elif "LOGIN" in data and self.active == False:
+                    if "LOGIN" in data and self.active == False:
                         try:
                             data_list = str(data).split("*")
                             user = str(data_list[1])
@@ -560,7 +590,7 @@ class server():
                 print("[ERROR_CONNECTING_NEW_CLIENT] :", str(e))        
             try:
                 t1 = threading.Thread(group=None, target=self.handle_client, args=(conn, addr))
-                t1.daemon = True
+                #t1.daemon = True
                 t1.start()
                 self.threads.append(t1)
                 #print("[NEW_THREAD]:", str(t1))

@@ -68,6 +68,7 @@ class connections():
                                 if "EMPTY" not in c_list:
                                     #print("C_LIST.. ", str(c_list[1]))
                                     self.FM.write_file("CHATS/CONTS.txt", str(c_list[1]), "%", "w")
+                                    self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "", "%", "w")
                             # GET MSGS
                         data_len = 0
             except Exception as e:
@@ -83,7 +84,7 @@ class connections():
         self.msg = ""
         print("[SEND_MSG]:[RUNNING]")
         path = "SOCKET_DATA/OUT_BOUND.txt"
-        msg_pat = "SOCKET_DATA/MSG_OF.txt"
+        msg_pat = "SOCKET_DATA/MSG_TO.txt"
         #CHECK OUT_BOUND<FILE> CHANGES
         try:
             self.init_msg = str(self.FM.read_file(msg_pat, ""))

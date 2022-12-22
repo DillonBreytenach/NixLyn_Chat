@@ -151,7 +151,7 @@ class Chats(Screen):
         self.user_name = str(user_data[0])
         to_send = "MSG_TO$%:"+str(self.target_user)+"$%:"+self.user_name+"$%:"+str(self.ids['MSG_OUT'].text)
         print("\nSEND:\n >> ", to_send)
-        self.FM.write_file("SOCKET_DATA/MSG_OF.txt", to_send, "$%:", "w")
+        self.FM.write_file("SOCKET_DATA/MSG_TO.txt", to_send, "$%:", "w")
 
     def chat_info(self):
         #print("[CHAT_INFO]")

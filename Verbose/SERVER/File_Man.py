@@ -77,6 +77,7 @@ class File_man():
             is_fold = self.check_folder(target_folder)
             if is_fold == False:
                 os.system('mkdir ' + target_folder)
+                print("[DIR_MADE]:", str(target_folder))
             return
         except Exception as e:
             print("[ERROR]:[MAKE_FOLDER]", str(e))
