@@ -111,7 +111,8 @@ class Scroll_Chats(RecycleView):
         try:
             user_data = self.FM.read_file("CHATS/CURRENT.txt", "*")
             if user_data:
-                #print("[GOT_TARGET_USER]:", str(user_data))
+
+                print("[GOT_TARGET_USER]:", str(user_data))
                 self.target_user = str(user_data[0])
                 user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
                 user_name = str(user_data[0])
@@ -119,8 +120,12 @@ class Scroll_Chats(RecycleView):
                 self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "*", "w")
 
                 #print("[Scroll_Me]::[Go_On]")
-                cont = self.FM.read_file("CHATS/CURRENT.txt", "%")
-                chat = self.FM.read_file(f"MSGS/{str(cont)[2:-2]}.txt", "*$")[:-1]
+
+                chat = self.FM.read_file(f"MSGS/{str(self.target_user)}.txt", "$")
+
+
+
+
                 if chat:
                     print("[ASSIGNING_CHATS]::[SCROLL_CHATS]")
                     self.data = [{'text': str(x), "root_widget": self} for x in chat if x]

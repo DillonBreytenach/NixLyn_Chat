@@ -127,9 +127,6 @@ WindowManager:
     background_color: (0.7, 0.9, 1, 1)
     color: (0, 0, 0, 1)
 
-    #   ??
-    #    border_radius: (10, 10, 0, 0)
-
 
 <Scroll_Me>:
     viewclass: "Chat_Buttons"
@@ -197,6 +194,8 @@ WindowManager:
         size_hint_y: None
         orientation: 'vertical'
         height: self.minimum_height
+
+
 <Chats>:
     id: Chats
     name: 'Chats'
@@ -204,7 +203,7 @@ WindowManager:
 
     MDFloatLayout:
         Scroll_Chats:
-            pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+            pos_hint: {'center_x': 0.5, 'center_y': 0.3}
             id: Scroll_Chats
 
 
@@ -376,12 +375,6 @@ WindowManager:
     name: "Main_WID"
     MDFloatLayout:
         orientation: 'vertical'
-
-        #Image:
-        #    pos_hint: {'x': 0.0,'y': -0.2}
-        #    size_hint: 1.5, 1.5
-        #    source: "ASSETS/BACKGROUND.jpeg"
-        #    allow_stretch: True
 
         Button:
             id: HEAD_LINE
