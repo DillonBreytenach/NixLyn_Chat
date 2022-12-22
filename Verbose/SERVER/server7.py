@@ -286,30 +286,36 @@ class server():
     	#    	|-User1/
     	#   		|-User2.txt -> "<date_time_1>$<msg_1>$<received_1>$&<date_time_2>$<msg_2>$<received_2>$&"
 
-        print("\n\nGET_MSG\n\n")
+        file_name = ""
+        to_user = ""
+        of_user = ""
+        the_msg = ""
+        to_send =  ""
+        check_file =  False
+        ret_ = ""
+
+        print("\n\nGET_MSG\n\n>>>", str(data))
         break_msg = data.split("*")
-        print("TO : ", str(break_msg[1]))
-        to_user = str(break_msg[1])
-        print("OF : ", str(break_msg[2]))
-        of_user = str(break_msg[2])
-        print("MSG: ", str(break_msg[3]))
-        the_msg = str(break_msg[3])
+        if len(break_msg) > 3:
+            print("TO : ", str(break_msg[1]))
+            to_user = str(break_msg[1])
+            print("OF : ", str(break_msg[2]))
+            of_user = str(break_msg[2])
+            print("MSG: ", str(break_msg[3]))
+            the_msg = str(break_msg[3])
 
-        # DATE_TIME_STAMP
+            # DATE_TIME_STAMP
+            # Get the current date and time
+            now = datetime.now()
 
-        # Get the current date and time
-        now = datetime.now()
-
-        # Format the date and time as a string in the desired format
-        date_time_str = now.strftime("%Y/%m/%d-%H:%M")
-
-        to_send = "*"+date_time_str+"*"+the_msg
-
-        print("TO_SAVE:: ", str(to_send))
+            # Format the date and time as a string in the desired format
+            date_time_str = now.strftime("%Y/%m/%d-%H:%M")
+            to_send = "*"+date_time_str+"*"+the_msg
+            print("TO_SAVE:: ", str(to_send))
 
 
-        file_name = "MSGS/"+to_user+"/"+of_user+".txt"
-        print("FILE-> ", str(file_name))
+            file_name = "MSGS/"+to_user+"/"+of_user+".txt"
+            print("FILE-> ", str(file_name))
 
         check_file = self.FM.check_file(file_name)
         if check_file == True:
@@ -349,25 +355,41 @@ class server():
     def msg_of(self, data):
         print("MSG_OF:: ", str(data))
         dataLs = data.split("*")
+        ret_lst = []
 
-        dir_ = "MSGS/"+str(dataLs[1])+"/"
-    
+        dir_of = "MSGS/"+str(dataLs[1])+"/"
+        dir_to = "MSGS/"+str(dataLs[2])+"/"
+
+
+        print(f"DIR_OF:: {dir_of} \n DIR_TO:: {dir_to}")
+
         if "ALL" in str(dataLs[2]):
-            msgs_all = self.FM.get_file_data(dir_)
+            msgs_all = self.FM.get_file_data(dir_of)
             if msgs_all:
                 return "MSGS_ALL*"+str(msgs_all)
             else:
                 return "MSGS&ERROR"
 
         if "ALL" not in data and len(dataLs) >= 3:
-            file_name = dir_+str(dataLs[2])+".txt"
-            msg_from = self.lst_to_str(self.FM.read_file(file_name, "&"), "&")
+            # COLLECT RECV MSGS
+            file_name = dir_of+str(dataLs[2])+".txt"
+            msg_from = self.FM.read_file(file_name, "&")
             if msg_from:
-                ret_ = "MSGS_OF*USER$"+str(dataLs[2])+"$*"+str(msg_from)
-                print("\n[RET_]:", str(ret_), "\n^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-                return ret_
-            else:
-                return "MSGS&ERROR"
+                for m_ in msg_from:
+                    ret_lst.append(str(dataLs[2]) + "*" + str(m_) + "&")
+                    print("[MSG_OF]:", str(dataLs[2]) + "*" + str(m_) + "&")
+
+            # CELLECT SENT MSGS
+            my_file = dir_to+str(dataLs[1])+".txt"
+            msg_to = self.FM.read_file(my_file, "&")
+            if msg_to:
+                for m_ in msg_to:
+                    ret_lst.append(str(dataLs[1]) + "*" + str(m_) + "&")
+                    print("[MSG_TO]:", str(dataLs[1]) + "*" + str(m_) + "&")
+            ret_ = self.lst_to_str(ret_lst, "&")
+            return "MSGS_OF*USER$"+ret_
+        else:
+             return "MSGS&ERROR"
 
 
     #CLIENT_THREAD_HANDLE

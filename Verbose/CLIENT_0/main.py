@@ -162,7 +162,6 @@ class Chats(Screen):
         self.chat_info()
 
 
-
     def send_it(self):
         user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
         self.user_name = str(user_data[0])
@@ -185,7 +184,6 @@ class Chats(Screen):
         #print("SELF.STATE:: ", str(self.state))
         try:
             self.ids['USER_STATUS'].text = str(self.state[1])
-            self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "", "*", "w")
         except:
             print("TARGET_STATE_NOT_YET_LOADED")
 
