@@ -300,9 +300,6 @@ class Chat_Buttons(Button):
             print("[ERROR]:[CHAT_BUTTON]:", str(e))
 
 
-
-
-
         if len(self.FM.read_file("CHATS/CURRENT.txt", "&")) == 0:
             if self.text:
                 self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
@@ -332,6 +329,8 @@ class Scroll_Me(RecycleView):
         if contacts:
             #print("[ASSIGNING_CONTS]::[SCROLL_CONTS]")
             self.data = [{'text': str(x), "root_widget": self} for x in contacts if x]
+        for i in contacts:
+            print(":i:", str(i))
 
     def goToUpdate(self):
         print("INST:goT: ")

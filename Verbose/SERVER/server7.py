@@ -190,27 +190,31 @@ class server():
         except Exception as r:
             print("USER_UPDATE_ERROR: ", str(r))
 
-
     #LOGIN
     def Login_User(self, data):
         try:
             print("ATTEMPTING_LOGIN:: ", str(data))
             user = data.split("*")
-            if len(user) > 1:
+            if len(user) >= 3:
                 User = str(user[1]).translate(str.maketrans('','',string.punctuation))
                 PSWD = str(user[2]).translate(str.maketrans('','',string.punctuation))
                 print("USER   ::", User)
                 print("PSWD   ::", PSWD)
                 file_name = "USERS/"+User+".txt"
-                f_ret = self.FM.check_file(file_name)
+
+                try:
+                    f_ret = self.FM.check_file(file_name)
+                except Exception as e:
+                    print("CHECK_FILE_ERROR", str(e))
+
                 if f_ret != True:
                     print("USER_NOT FOUND")
                     return "NEW"
                 elif f_ret == True:
-                    #print("F_RET", str(f_ret))
+                    print("F_RET", str(f_ret))
                     f_data = self.FM.read_file(file_name, "*")
                     #print("F_DATA:: ", str(f_data), "\nLEN:: ", str(len(f_data)))
-                    if len(f_data) >= 2:
+                    if len(f_data) >= 3:
                         f_User = str(f_data[1])
                         f_pswd = str(f_data[2])
                         if str(f_pswd) == str(PSWD) and str(f_User) == str(User):
@@ -566,22 +570,23 @@ class server():
                             user = str(data_list[1])
                             if user:
                                 print("[SETTING]_[USER] :: ", str(user))
-                                self.update_User(client, user, "ONLINE")
 
                             t = self.Login_User(data)
-                            try:
-                                if "NEW" in t:
+                            if "NEW" in t:
+                                try:
                                     self.reply(conn, "PLEASE_REGISTER")
                                     print('NEW_USER:: ')
                                     pass
-                            except Exception as e:
-                                print("NEW___EROOR", str(e))
-                            if "OLD" in t:
+                                except Exception as e:
+                                    print("NEW___EROOR", str(e))
+                            elif "OLD" in t:
                                 self.reply(conn, "LOGIN")
                                 print("LOGGING_IN:: ", str(data))
                                 self.active = True
+                                self.update_User(client, user, "ONLINE")
+
                                 pass
-                            if "PSWD_FAIL" in t:
+                            elif "PSWD_FAIL" in t:
                                 self.reply(conn, "PSWD_FAIL")
                                 print("PSWD_FAIL")
                                 pass
