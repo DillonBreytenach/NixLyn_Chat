@@ -279,9 +279,38 @@ class Contacts(Screen):
         MDApp.get_running_app().root.current = 'Main_WID'
         Clock.unschedule(self.go_on)
 
+
+
+
+
+
+# TEST ING
+class TwoButtons(BoxLayout):        # The viewclass definitions, and property definitions.
+    left_text = StringProperty()
+    right_text = StringProperty()
+
+    def go_chat(self, **kwargs):
+        super().on_release(**kwargs)
+        self.FM = File_man()
+        print("INST:ON_R: ", str(self.text))
+
+
+        if len(self.FM.read_file("CHATS/CURRENT.txt", "&")) == 0:
+            if self.text:
+                self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
+            print("OPENING_CHATS", str(self.text))
+            self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
+            MDApp.get_running_app().root.current = 'Chats'
+        else:
+            self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
+
+
+
 #CONTACT_BUTTONS
 class Chat_Buttons(Button):
     root_widget = ObjectProperty()
+
+
     def on_release(self, **kwargs):
         super().on_release(**kwargs)
         self.FM = File_man()
@@ -300,6 +329,9 @@ class Chat_Buttons(Button):
             print("[ERROR]:[CHAT_BUTTON]:", str(e))
 
 
+
+
+
         if len(self.FM.read_file("CHATS/CURRENT.txt", "&")) == 0:
             if self.text:
                 self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
@@ -309,6 +341,8 @@ class Chat_Buttons(Button):
         else:
             self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
 
+
+
 #CONTACT_LIST_SCROLLER
 class Scroll_Me(RecycleView):
     def __init__(self, **kw):
@@ -316,6 +350,10 @@ class Scroll_Me(RecycleView):
         # GET SCREEN NAME HERE
         self.FM = File_man()
         print("[Scroll_Me]:: INIT")
+        self.name = ""
+        self.time = ""
+
+        
         Clock.schedule_interval(self.go_on, 1)
 
 
@@ -328,9 +366,13 @@ class Scroll_Me(RecycleView):
         contacts = self.FM.read_file("CHATS/CONTS.txt", "%")[:-1]
         if contacts:
             #print("[ASSIGNING_CONTS]::[SCROLL_CONTS]")
-            self.data = [{'text': str(x), "root_widget": self} for x in contacts if x]
-        for i in contacts:
-            print(":i:", str(i))
+            #self.data = [{'text': str(x), "cont": self} for x in contacts if x]
+            #self.data = [{'name': str(x.split('@')[0]), 'time': str(x.split('@')[1]), "root_widget": self} for x in contacts if x]
+            #self.data = [{'name': x.split('@')[0], 'time': x.split('@')[1], 'status': y, "root_widget": self} for x, y in zip(contacts, statuses)]
+
+            self.data = [{'left_text': str(x.split('@')[0]), 'right_text': str(x.split('@')[1]), "root_widget": self} for x in contacts if x]
+
+
 
     def goToUpdate(self):
         print("INST:goT: ")

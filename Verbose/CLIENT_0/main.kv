@@ -27,7 +27,6 @@ WindowManager:
     Add_C:
 
 
-
 #-----------------------------------------------------------------------------------------------------
 # ATRIBUTES GLOBAL
 <MD_RECT_BUTTON@MDRectangleFlatButton>:
@@ -38,31 +37,35 @@ WindowManager:
     
 
 
+
+
+
+
 #-----------------------------------------------------------------------------------------------------
 #POPUPS
     #ERROR/SUCCESSFUL
 <Login_Fail>:
-    title: ""
-    MD_RECT_BUTTON:
+    title: "LOGIN_FAIL"
+    Button:
         text: "[INCORRECT]:\nPSWD || USERNAME"
         on_release: root.dismiss()
 <Reg_Fail>:
-    title: ""
-    MD_RECT_BUTTON:
+    title: "REG_FAIL"
+    Button:
         text: "REG_FAIL"
         on_release: root.dismiss()
 <Add_fail>:
-    title: ""
+    title: "NEW_CONTACT_FAIL"
     MDFloatLayout:
-        MD_RECT_BUTTON:
+        Button:
             text: "ADDING\nCONTACT\nFAILED"
             size_hint: 1, 1
             pos_hint: {'x': 0, 'y': 0}
             on_release: root.dismiss()
 <Add_Success>:
-    title: ""
+    title: "NEW_CONTACT_ADDED"
     MDFloatLayout:
-        MD_RECT_BUTTON:
+        Button:
             text: "ADDING\nCONTACT\nSUCCESSFUL"
             size_hint: 1, 1
             pos_hint: {'x': 0, 'y': 0}
@@ -83,7 +86,6 @@ WindowManager:
         text: "WELCOME"
         on_release: root.dismiss()
 
-
 #-----------------------------------------------------------------------------------------------------
     #ADD_CONTACT
 <Add_C>:
@@ -95,14 +97,14 @@ WindowManager:
             id: NEW_CONTACT
             size_hint: .6, .2
             pos_hint: {'x': .2, 'y': .6}
-        MD_RECT_BUTTON:
+        Button:
             text: "BACK"
             size_hint: .1, .1
             pos_hint: {'x': .9, 'y': .9}
             on_release:
                 root.back()
 
-        MD_RECT_BUTTON:
+        Button:
             text: "ADD"
             size_hint: .6, .2
             pos_hint: {'x': .2, 'y': .3}
@@ -122,11 +124,11 @@ WindowManager:
     name: 'New_Log'
     MDFloatLayout:
 
-        MD_RECT_BUTTON:
+        Button:
             id: NewLog
             text: "NEW_LOG"
 
-        MD_RECT_BUTTON:
+        Button:
             id: back
             text: "BACK"
             on_release: root.back()
@@ -134,11 +136,11 @@ WindowManager:
     name: 'Search'
     MDFloatLayout:
 
-        MD_RECT_BUTTON:
+        Button:
             id: SEARCH
             text: "SEARCH"
 
-        MD_RECT_BUTTON:
+        Button:
             id: back
             text: "BACK"
             on_release: root.back()
@@ -146,29 +148,49 @@ WindowManager:
 #-----------------------------------------------------------------------------------------------------
     #CONTACTS && CHATS
 
-
-
 <Chat_Buttons>:
     # Default style for the button
-    font_size: 15
+    font_size: 20
     size_hint: (1, None)
-    height: self.texture_size[1]
-    padding: 0, 15
-    background_color: (0.7, 0.9, 1, 1)
+    height: 50
+    background_color: (0.5, 0.5, 0.5, 1)
     color: (0, 0, 0, 1)
+
+
+<TwoButtons>:
+# This class is used as the viewclass in the RecycleView
+# The means this widget will be instanced to view one element of data from the data list.
+# The RecycleView data list is a list of dictionaries.  The keys in the dictionary specify the 
+# attributes of the widget.
+
+    font_size: 20
+    size_hint: (1.5, None)
+    height: 50
+    background_color: (0.5, 0.5, 0.5, 1)
+    color: (0, 0, 0, 1)
+    spacing: 0
+
+    MD_RECT_BUTTON:
+        size_hint: 2, None
+        text: root.left_text
+        on_release: root.go_chat, print(f'Button {self.text} pressed')
+    MD_RECT_BUTTON:
+        text: root.right_text
+        on_release: print(f'Button {self.text} pressed') 
+        
 
 
 
 <Scroll_Me>:
-    viewclass: "Chat_Buttons"
-    MDBoxLayout:
+    viewclass: "TwoButtons"
+    RecycleBoxLayout:
         default_size: None, None
         default_size_hint: 1, None
         size_hint_y: None
         orientation: 'vertical'
         height: self.minimum_height
-
-
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        
 
 
 
@@ -182,34 +204,34 @@ WindowManager:
             pos_hint: {'center_x': 0.5, 'center_y': 0.3}
             id: Scroll_Me
 
-        MD_RECT_BUTTON:
+        Button:
             id: USER
             text: "USER"
             size_hint: .6, .1
             pos_hint: {'x': 0.2,'y': 0.9}
 
-        MD_RECT_BUTTON:
+        Button:
             id: add
             text: "+"
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.9}
             on_release: root.add_c()
 
-        MD_RECT_BUTTON:
+        Button:
             id: Home
             text: "Home"
             size_hint: .5, .1
             pos_hint: {'x': 0.0,'y': 0.8}
             on_release: root.home()
 
-        MD_RECT_BUTTON:
+        Button:
             id: CONTACTS
             text: "CONTACTS"
             disabled: True
             size_hint: .5, .1
             pos_hint: {'x': 0.5,'y': 0.8}
 
-        MD_RECT_BUTTON:
+        Button:
             id: EXIT
             text: "EXIT"
             size_hint: .2, .1
@@ -228,9 +250,10 @@ WindowManager:
     color: (0, 0, 0, 1)
 
 
+
 <Scroll_Chats>:
     viewclass: "Chat_Msgs"
-    MDBoxLayout:
+    RecycleBoxLayout:
         default_size: None, None
         default_size_hint: 1, None
         size_hint_y: None
@@ -251,26 +274,26 @@ WindowManager:
                 id: Scroll_Chats
 
 
-        MD_RECT_BUTTON:
+        Button:
             id: TARGET_USER
             text: "USER"
             size_hint: .6, .1
             pos_hint: {'x': 0.2,'y': 0.9}
 
-        MD_RECT_BUTTON:
+        Button:
             id: USER_STATUS
             text: "OFFLINE"
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.9}
 
-        MD_RECT_BUTTON:
+        Button:
             id: Home
             text: "Home"
             size_hint: .5, .1
             pos_hint: {'x': 0.0,'y': 0.8}
             on_release: root.home()
 
-        MD_RECT_BUTTON:
+        Button:
             id: CONTACTS
             text: "CONTACTS"
             disabled: False
@@ -278,7 +301,7 @@ WindowManager:
             pos_hint: {'x': 0.5,'y': 0.8}
             on_release: root.contacts()
 
-        MD_RECT_BUTTON:
+        Button:
             id: EXIT
             text: "EXIT"
             size_hint: .2, .1
@@ -291,7 +314,7 @@ WindowManager:
             size_hint: .8, .1
             pos_hint: {'x': 0.0,'y': 0.0}
 
-        MD_RECT_BUTTON:
+        Button:
             id: SEND_IT
             text: "SEND"
             size_hint: .2, .1

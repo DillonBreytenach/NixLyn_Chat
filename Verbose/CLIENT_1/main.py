@@ -289,20 +289,20 @@ class TwoButtons(BoxLayout):        # The viewclass definitions, and property de
     left_text = StringProperty()
     right_text = StringProperty()
 
-    def go_chat(self, **kwargs):
-        super().on_release(**kwargs)
-        self.FM = File_man()
-        print("INST:ON_R: ", str(self.text))
+    def go_chat(self, name):
+        #super().on_release(**kwargs)
+        #self.FM = File_man()
+        print("INST:ON_R: ", str(name))
 
 
-        if len(self.FM.read_file("CHATS/CURRENT.txt", "&")) == 0:
-            if self.text:
-                self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
-            print("OPENING_CHATS", str(self.text))
-            self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
+        if len(File_man().read_file("CHATS/CURRENT.txt", "&")) == 0:
+            if name:
+                File_man().write_file(f"MSGS/{str(name)}.txt", time, "", "a+")
+            print("OPENING_CHATS", str(name))
+            File_man().write_file("CHATS/CURRENT.txt", str(name), "&", "w")
             MDApp.get_running_app().root.current = 'Chats'
         else:
-            self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
+            File_man().write_file("CHATS/CURRENT.txt", "", "&", "w")
 
 
 

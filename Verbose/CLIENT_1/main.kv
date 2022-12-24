@@ -173,7 +173,7 @@ WindowManager:
     MD_RECT_BUTTON:
         size_hint: 2, None
         text: root.left_text
-        on_release: root.go_chat, print(f'Button {self.text} pressed')
+        on_release: root.go_chat(root.left_text) #, print(f'Button {self.text} pressed')
     MD_RECT_BUTTON:
         text: root.right_text
         on_release: print(f'Button {self.text} pressed') 
