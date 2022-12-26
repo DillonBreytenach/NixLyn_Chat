@@ -60,7 +60,7 @@ class File_man():
             #print(f'[file exists] : {file_name}')
             return True
         else:
-            #print(f'![file does not exists]! : {file_name}')
+            print(f'![file does not exists]! : {file_name}')
             return False
 
 

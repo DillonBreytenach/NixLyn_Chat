@@ -145,13 +145,18 @@ class connections():
 
                         # CONTACTS
                         elif "CONTS" in data:
-                            c_list = data.split("*")
-                            if "EMPTY" not in c_list:
+                            c_list = data.split("$")
+                            if "FAIL" in data:
+                                # ("SOCKET_DATA/USER.txt", "*")
+                                print("ADD_USER_FAIL", str(data))
+                                #self.FM.write_file("CHATS/CONTS.txt", data, "%", "w")
+                                self.FM.write_file("SOCKET_DATA/IN_BOUND.txt", "FAIL", "%", "w")
+
+                            elif "EMPTY" not in c_list:
                                 #print("C_LIST.. ", str(c_list[1]))
                                 self.FM.write_file("CHATS/CONTS.txt", str(c_list[1]), "%", "w")
                                 self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "", "%", "w")
-
-
+                            
                     data_len = 0
             except Exception as e:
                 print("[SOCKET CLOSED]")

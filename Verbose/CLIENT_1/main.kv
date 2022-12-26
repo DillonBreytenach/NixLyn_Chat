@@ -176,7 +176,7 @@ WindowManager:
         on_release: root.go_chat(root.left_text) #, print(f'Button {self.text} pressed')
     MD_RECT_BUTTON:
         text: root.right_text
-        on_release: print(f'Button {self.text} pressed') 
+        on_release: root.go_chat(root.left_text), print(f'Button {self.text} pressed') 
         
 
 
@@ -204,34 +204,34 @@ WindowManager:
             pos_hint: {'center_x': 0.5, 'center_y': 0.3}
             id: Scroll_Me
 
-        Button:
+        MD_RECT_BUTTON:
             id: USER
             text: "USER"
             size_hint: .6, .1
             pos_hint: {'x': 0.2,'y': 0.9}
 
-        Button:
+        MD_RECT_BUTTON:
             id: add
             text: "+"
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.9}
             on_release: root.add_c()
 
-        Button:
+        MD_RECT_BUTTON:
             id: Home
             text: "Home"
             size_hint: .5, .1
             pos_hint: {'x': 0.0,'y': 0.8}
             on_release: root.home()
 
-        Button:
+        MD_RECT_BUTTON:
             id: CONTACTS
             text: "CONTACTS"
             disabled: True
             size_hint: .5, .1
             pos_hint: {'x': 0.5,'y': 0.8}
 
-        Button:
+        MD_RECT_BUTTON:
             id: EXIT
             text: "EXIT"
             size_hint: .2, .1

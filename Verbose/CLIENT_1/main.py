@@ -50,6 +50,10 @@ except Exception as e:
     print("[ERROR]:[IMPORTS]", str(e))
 
 
+
+
+name_ = ""
+
 #POPUPS
 #*********************************************************************************************************
 class Login_Fail(Popup):
@@ -220,7 +224,7 @@ class Add_C(Screen):
         File_man().write_file("SOCKET_DATA/OUT_BOUND.txt", msg_, "*", "w")
         time.sleep(2)
         ret_val = str(File_man().read_file("SOCKET_DATA/IN_BOUND.txt", "*"))
-        if "KHONA" in ret_val or "FAIL" in ret_val:
+        if "KHONA" in ret_val or "NOT_FOUND" in ret_val:
             added_cont = '1'
             print("ADDING_CONTACT_FAILED")
             Add_fail().open()
@@ -229,6 +233,7 @@ class Add_C(Screen):
             added_cont = '1'
             print("CONTACT_ADDED_SUCCESSFULLAI")
             Add_Success().open()
+        
 
 
     def back(self):
@@ -246,27 +251,13 @@ class Contacts(Screen):
         self.FM = File_man()
 
     def on_enter(self):
-        print("[ON_ENTER]:CONTACTS_SCREEN")
-        Clock.schedule_interval(self.go_on, 1)
+        global name_
+        self.ids['USER'].text = name_
 
-    def go_on(self, inst):
-        #print("GO_ON::CONTACTS:", str(inst))
-        #self.user_name = ""
-        user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
-        self.user_name = str(user_data[0])
-        #print("USER: ", str(user_data))
-        self.ids['USER'].text = str(self.user_name)
-        self.get_conts()
-
-    def get_conts(self):
-        #print("[GET_CONTS]")
-        msg_ = "CONTS*"+str(self.user_name)
-        self.FM.write_file("SOCKET_DATA/CONTS.txt", msg_, "*", "w")
 
     def add_c(self):
         print("ADDING_CONTACT -> SCREEN")
         MDApp.get_running_app().root.current = 'add_c'
-
 
     def home(self):
         MDApp.get_running_app().root.current = 'Home'
@@ -279,22 +270,13 @@ class Contacts(Screen):
         MDApp.get_running_app().root.current = 'Main_WID'
         Clock.unschedule(self.go_on)
 
-
-
-
-
-
 # TEST ING
 class TwoButtons(BoxLayout):        # The viewclass definitions, and property definitions.
     left_text = StringProperty()
     right_text = StringProperty()
 
     def go_chat(self, name):
-        #super().on_release(**kwargs)
-        #self.FM = File_man()
         print("INST:ON_R: ", str(name))
-
-
         if len(File_man().read_file("CHATS/CURRENT.txt", "&")) == 0:
             if name:
                 File_man().write_file(f"MSGS/{str(name)}.txt", time, "", "a+")
@@ -304,74 +286,44 @@ class TwoButtons(BoxLayout):        # The viewclass definitions, and property de
         else:
             File_man().write_file("CHATS/CURRENT.txt", "", "&", "w")
 
-
-
-#CONTACT_BUTTONS
-class Chat_Buttons(Button):
-    root_widget = ObjectProperty()
-
-
-    def on_release(self, **kwargs):
-        super().on_release(**kwargs)
-        self.FM = File_man()
-        print("INST:ON_R: ", str(self.text))
-
-
-
-        # WTF ??
-        try:
-            user_name = str(self.FM.read_file("SOCKET_DATA/USER.txt", "*")[0])
-            if self.text:
-                print("[GOT_T_USER]:", str(self.text))
-                get_msgs = "MSG*"+str(user_name)+"*"+str(self.text)+"*"
-                self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "*", "w")
-        except Exception as e:
-            print("[ERROR]:[CHAT_BUTTON]:", str(e))
-
-
-
-
-
-        if len(self.FM.read_file("CHATS/CURRENT.txt", "&")) == 0:
-            if self.text:
-                self.FM.write_file(f"MSGS/{str(self.text)}.txt", time, "", "a+")
-            print("OPENING_CHATS", str(self.text))
-            self.FM.write_file("CHATS/CURRENT.txt", str(self.text), "&", "w")
-            MDApp.get_running_app().root.current = 'Chats'
-        else:
-            self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
-
-
-
 #CONTACT_LIST_SCROLLER
 class Scroll_Me(RecycleView):
     def __init__(self, **kw):
         super(Scroll_Me, self).__init__(**kw)
-        # GET SCREEN NAME HERE
         self.FM = File_man()
         print("[Scroll_Me]:: INIT")
-        self.name = ""
-        self.time = ""
-
-        
         Clock.schedule_interval(self.go_on, 1)
-
 
     def current(self, inst):
         print("INST:: ", str(inst))
 
 
     def go_on(self, inst):
+        global name_
+
+        if name_:
+            msg_ = "CONTS*"+str(name_)
+            self.FM.write_file("SOCKET_DATA/CONTS.txt", msg_, "*", "w")
+
+        self.get_conts()
         #print("[Scroll_Me]::[Go_On]")
         contacts = self.FM.read_file("CHATS/CONTS.txt", "%")[:-1]
-        if contacts:
-            #print("[ASSIGNING_CONTS]::[SCROLL_CONTS]")
-            #self.data = [{'text': str(x), "cont": self} for x in contacts if x]
-            #self.data = [{'name': str(x.split('@')[0]), 'time': str(x.split('@')[1]), "root_widget": self} for x in contacts if x]
-            #self.data = [{'name': x.split('@')[0], 'time': x.split('@')[1], 'status': y, "root_widget": self} for x, y in zip(contacts, statuses)]
+        if "EMPTY" not in str(contacts):
 
-            self.data = [{'left_text': str(x.split('@')[0]), 'right_text': str(x.split('@')[1]), "root_widget": self} for x in contacts if x]
+            self.data = [{
+                        'left_text': str(x.split('*')[0]),
+                        'right_text': str(x.split('*')[2]) if "OFFLINE" not in str(x.split('*')[2]) else str(x.split('*')[1]),
+                        "root_widget": self}
+                            for x in contacts if x]
 
+
+    def get_conts(self):
+        global name_
+        
+        #print("NAME: ", str(name_))
+        if name_:
+            msg_ = "CONTS*"+str(name_)+"^^"
+            self.FM.write_file("SOCKET_DATA/CONTS.txt", msg_, "*", "w")
 
 
     def goToUpdate(self):
@@ -416,6 +368,7 @@ class Login(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.FM = File_man()
+        
 
     def login_(self):
         print("LOGGINIG_IN")
@@ -424,6 +377,10 @@ class Login(Screen):
         data = "LOGIN"+"*"+Name+"*"+PSWD
         self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", data, "*", "w")
         self.FM.write_file("SOCKET_DATA/USER.txt", Name, "*", "w")
+
+        global name_
+        name_ = Name
+
         time.sleep(0.5)
         Login_Confirm = self.FM.read_file("SOCKET_DATA/IN_BOUND.txt", "*")
         if "LOGIN" in Login_Confirm:

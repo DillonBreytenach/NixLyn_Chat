@@ -75,31 +75,58 @@ class server():
 
     #GET_CONTACT_LIST
     def Get_Contacts(self, user):
-        #USER FILE
-        #USER_FILE::
-        #   >[0] = action
-        #   >[1] = user_name
-        #   >[2] = pswd
-        #   >[3] = client_data....(NOT_NOW){TO_MUCH_BS}
-        #   >[4] = status
-        #   >[5] = contact_list{FILE_NAME}
-        #   >[6] = msgs{FILE_NAME} : delim = "%"
 
-        #print("GETTING_USER_CONTACT_LIST:: ", str(user))
+        file_name = ""
+        user_file = ""
+        data_up = []
+        user_conts = []
+        p_u = ""
+        u_q = ""
+        u_dt = ""
+        up_cont = ""
+        conts_lst_str = ""
+
+        stats_ = ""
+
         try:
             file_name = "CONTS/"+user+".txt"
             user_file = self.FM.check_file(file_name)
+            
             if user_file == True:
                 user_conts = self.FM.read_file(file_name, "%")
                 if len(user_conts) > 0 and type(user_conts) == list:
                     try:
-                        conts_lst_str = self.lst_to_str(user_conts, "%")
+                        # FRST CHECK STATUS AND UPDATE TO USE THE CURRENT TIME
+                        #   get_user_state
+                        for u in user_conts:
+                            print("\n\nUSER_IN_QU: ", str(u))
+                            if not u:
+                                pass
+                            try:
+                                p_u = str(u)
+                                u_q = str(p_u.split("@")[0])
+                                #print("GET_USER_STATUS->: ", u_q)
+
+                                if u_q:
+                                    u_dt = self.get_user_state(u_q)
+                                    print("[U_DT]::", u_dt)
+                                    stats_ = u_q+"*"+u_dt
+                            except Exception as e:
+                                print("[GET_USER_ERROR]::", str(e))
+
+                            if stats_:
+                                try:
+                                    #print("[CONT]:: ", str(stats_))
+                                    if stats_ not in str(data_up):
+                                        data_up.append(stats_)
+                                except Exception as e:
+                                    print("[ERROR]::[GET_CONTS]::[STATUS]::", str(e))
+                        conts_lst_str = self.lst_to_str(data_up, "%")
                         #print("CONTS:: ", str(conts_lst_str))
+
                         return conts_lst_str
                     except Exception as e:
                         print("RET_LIST_ERROR:: ", str(e))
-
-
                 else:
                     print("CONTS_EMPTY", str(conts_lst_str))
                     return "EMPTY"
@@ -115,6 +142,18 @@ class server():
         new_cont_f_name = "CONTS/"+str(data[2])+".txt"
         msgs_f_name = "MSGS/"+str(data[1])
         chat_f_name = "MSGS/"+str(data[1])+"/"+str(data[2])+".txt"
+
+        user_file = "USERS/"+str(data[2])+".txt"
+
+        is_user = self.FM.check_file(user_file)
+        print("[CHECKING_FILE]::", str(user_file))
+        if is_user != True:
+            print("[USER_NOT_FOUND]")
+            return "NOT_FOUND"
+        else:
+            print("[FETCHING_DATA]::", str(data[2]))
+
+
         print("data[2]:: ", str(data[2]))
         new_cont_c = self.FM.check_file(new_cont_f_name)
         if new_cont_c == True:
@@ -125,17 +164,19 @@ class server():
                 #CHECK IF ALREADY THERE
                 n_list = []
                 if str(data[2]) in c_list:
-                    print("KHONA")
+                    print("KHONA") # CONTACT ALREADY EXISTS
                     return "KHONA"
-                if len(c_list) > 0:
+                if len(c_list) > 0: 
                     for _ in c_list:
-                        if "EMPTY" not in str(_) and len(_) > 0:
+                        if "EMPTY" not in str(_) and len(_) > 0: # IF THERE ARE CONTACTS (NOT_EMPTY)
                             n_list.append(str(_))
                             print("ADDING TO NEW LIST:: ", str(_), "\n\
                             *******************************")
 
-                if str(data[2]) not in str(n_list):
-                    n_list.append(str(data[2]))
+                if str(data[2]) not in str(n_list): # IF CONT IN QUESTION NOT IN LIST 
+                    n_list.append(str(data[2])+"@OFFLINE") # ADD TO LIST  
+                                                    # BUT ADD THE STATUS OF THAT CONT, FIRST AS 
+                                                            # OFFLINE, UPDATE ON REFRESH (GET_CONTS)
                     print("N_LIST:: ", str(n_list))
                     self.FM.write_file(user_f_name, n_list, "%", "w")
                     # CREATE CHAT DIRECTORY
@@ -146,26 +187,62 @@ class server():
             except Exception as e:
                 print("ADDING_CONT_ERROR", str(e))
 
-
     #GET_STATUS
     def get_user_state(self, user):
         #TARGET_USER...
         #print("GET_USER_STATE:: ", str(user))
+
+        now = datetime.now()
+        # Format the date and time as a string in the desired format
+        date_time_str = now.strftime("%Y-%m-%d-%H-%M")
+
         f_name = "USERS/"+str(user)+".txt"
         user_data = self.FM.read_file(f_name, "*")
-        if "ONLINE" in str(user_data):
-            return "ONLINE"
-        else:
-            return "OFFLINE"
+        last_seen = ""
+
+        use_less = ""
+        status_ = ""
+        ret_val = ""
+
+        if len(user_data) >= 6:
+            for i, u_ in enumerate(user_data):
+                #print("[WTF::]::", str(i),"::",str(u_), "<--")
+                if i == 3:
+                    last_seen = str(u_)
+                    print("LAST_SEEN:: ", str(u_))
+                if i == 4:
+                    status_ = str(u_)
+                    print("STATUS:: ", str(u_))
+
+            ret_val = last_seen+"*"+status_
+            print("[GET_STATUS]::[RET_VAL]::", ret_val)
+            return ret_val
+
+
+
 
     #PROFILE_UPDATE
     def update_User(self, client, user, state):
         # ->get_file_data -> fileter to list
         # data[0] = action
         # data[1] = USER
-        #print("\n\n####\nUSER_UPDATE\n####")
+
+        #USER_FILE::
+        #   >[0] = action
+        #   >[1] = user_name
+        #   >[2] = pswd
+        #   >[3] = client_data....(NOT_NOW){TO_MUCH_BS}
+        #   >[4] = status
+        #   >[5] = contact_list{FILE_NAME}
+        #   >[6] = msgs{FILE_NAME} : delim = "%"
+
 
         try:
+            now = datetime.now()
+            # Format the date and time as a string in the desired format
+            date_time_str = now.strftime("%Y-%m-%d-%H-%M")
+
+
             if "OFFLINE" in state:
                 print(f"[UPDATE_USER]::{str(user)}::[OFFLINE]")
             if not user:
@@ -179,8 +256,10 @@ class server():
             #print(f"LEN(USER_DATA) > {str(len(user_data))}")
             if len(user_data) >= 6:
                 for i, _ in enumerate(user_data):
-                    if _ and i != 4:
+                    if _ and i != 4 and i != 3:
                         user_update.append(str(_))
+                    if i == 3:
+                        user_update.append(str(date_time_str))
                     if i == 4:
                         user_update.append(str(state))
                 self.FM.write_file(f_name, user_update, "*", "w")
@@ -313,7 +392,7 @@ class server():
             now = datetime.now()
 
             # Format the date and time as a string in the desired format
-            date_time_str = now.strftime("%Y/%m/%d-%H:%M")
+            date_time_str = now.strftime("%Y-%m-%d-%H-%M")
             to_send = "*"+date_time_str+"*"+the_msg
             print("TO_SAVE:: ", str(to_send))
 
@@ -500,8 +579,13 @@ class server():
                             if data_list:
                                 conts_list = self.add_Cont(data_list)
                                 if conts_list:
-                                    self.get_conts = True
-                                    self.reply(conn, "ADD_C*"+str(conts_list))
+                                    if "NOT_FOUND*" in conts_list:
+                                        print("NO SUCH USER", str(data_list[2]))
+                                        self.reply(conn, "CONTS*FAIL"+str(data_list[2]))
+
+                                    else:
+                                        self.get_conts = True
+                                        self.reply(conn, "ADD_C*"+str(conts_list))
                                     continue
 
                             else:
@@ -512,6 +596,8 @@ class server():
                     #GET_CONTACTS
                     if "CONTS" in data and get_conts == False:
                         try:
+                            if "^^" in data:
+                                continue
                             #print("GETTING_CONTS:: ", str(data))
                             data_list = str(data).split("*")
                             #print("USERS_LIST:: ", str(data_list))
@@ -535,7 +621,7 @@ class server():
                                     pass
 
                                 if "EMPTY" not in conts_list:
-                                    self.reply(conn, "CONTS*"+str(conts_list))
+                                    self.reply(conn, "CONTS$"+str(conts_list))
                                     pass
                             else:
                                 print("[CONTS]:[MISSING_ARGS]")
