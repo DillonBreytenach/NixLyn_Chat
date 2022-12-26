@@ -124,7 +124,7 @@ class connections():
                 if int(data_len) > 0:
                     data = str(self.sock.recv(data_len).decode())
                     if data:
-                        print("DATA RECVED:: ", str(data))
+                        #print("DATA RECVED:: ", str(data))
 
 
                         #WRITE ALL INCOMING DATA TO IN_BOUND<FILE>

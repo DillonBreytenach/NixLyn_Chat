@@ -158,14 +158,14 @@ WindowManager:
 
 
 <TwoButtons>:
-# This class is used as the viewclass in the RecycleView
-# The means this widget will be instanced to view one element of data from the data list.
-# The RecycleView data list is a list of dictionaries.  The keys in the dictionary specify the 
-# attributes of the widget.
+    # This class is used as the viewclass in the RecycleView
+    # The means this widget will be instanced to view one element of data from the data list.
+    # The RecycleView data list is a list of dictionaries.  The keys in the dictionary specify the 
+    # attributes of the widget.
 
     font_size: 20
     size_hint: (1.5, None)
-    height: 50
+    height: 40
     background_color: (0.5, 0.5, 0.5, 1)
     color: (0, 0, 0, 1)
     spacing: 0
@@ -179,8 +179,6 @@ WindowManager:
         on_release: root.go_chat(root.left_text), print(f'Button {self.text} pressed') 
         
 
-
-
 <Scroll_Me>:
     viewclass: "TwoButtons"
     RecycleBoxLayout:
@@ -191,8 +189,6 @@ WindowManager:
         height: self.minimum_height
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
         
-
-
 
 <Contacts>:
     id: Contacts
@@ -240,19 +236,44 @@ WindowManager:
         
 
 #-----------------------------------------------------------------------------------------------------
-<Chat_Msgs>:
+#<Chat_Msgs>:
+#    # Default style for the button
+#    font_size: 15
+#    size_hint: (1, None)
+#    height: self.texture_size[1]
+#    padding: 0, 15
+#    background_color: (0.7, 0.9, 1, 1)
+#    color: (0, 0, 0, 1)
+
+
+
+<Chat_Msg>:
     # Default style for the button
     font_size: 15
     size_hint: (1, None)
-    height: self.texture_size[1]
-    padding: 0, 15
+    #size: root.size
+    #height: self.texture_size[1]
+        #self.user_m.minimum_height + self.msg_text.minimum_height + self.msg_dt.minimum_height + 50
+    height: self.minimum_height
     background_color: (0.7, 0.9, 1, 1)
     color: (0, 0, 0, 1)
+    MD_RECT_BUTTON:
+        size_hint: 2, None
+        text: root.user_m
+        on_release: print(root.user_m)
+    MD_RECT_BUTTON:
+        size_hint: 4, None
+        text: root.msg_text
+        on_release: print(root.msg_text)
+    MD_RECT_BUTTON:
+        size_hint: 4, None
+        text: root.msg_dt
+        on_release: print(root.msg_dt)
 
 
 
 <Scroll_Chats>:
-    viewclass: "Chat_Msgs"
+    viewclass: "Chat_Msg"
     RecycleBoxLayout:
         default_size: None, None
         default_size_hint: 1, None
