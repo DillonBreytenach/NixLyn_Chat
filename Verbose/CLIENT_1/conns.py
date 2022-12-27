@@ -61,52 +61,55 @@ class connections():
                 self.FM.write_file(target_file, msg_of, "&", "a")
                 print("[MSG]::", to_save, ":[SAVED]:", target_file)
 
+
+
+
+    def stack_msgs(self, data):
+        cont_ = ""
+        file_name = ""
+        collected_ = ""
+        data_break = []
+        buff_lst = []
+        temp_msg = []
+        shifted = []
+
+        if "ACCESS_DENIED" in data:
+            self.FM.write_file("SOCKET_DATA/MSG_OF.txt", data, "*", "w")
+
         if "MSGS_OF" in data:
-            ls_data = data.split("&")
+            try:
 
-            print("\n\n\n[CONNS]:[MSGS_OF]:\n\n  NOW FILTER THE MSG_DATA")
-            for i, val in enumerate(ls_data):
-                print("[MSG]:[i]:", str(i), ":[val]:", str(val))
-                if len(val) == 0:
-                    pass
-                if "USER$" in val:
-                    sender_ = str(val.split("$")[1])
-                    sender__ = str(sender_.split("*")[0])
-                    print("[SENDER]: ", sender__)
-                if len(val) > 21:
-                    check_msg = val.split("*")
-                    if len(check_msg) >= 4:
-                        print("LEN ,/")
+                print("[STACK_MSGS]:: ", str(data))
+                data_break = data.split("@")
+                print("[DATA_BREAK][0]:", data_break[0])
+                print("[DATA_BREAK][1]:", data_break[1])
 
-                    
-                    
-                    #if val[0]=="*" and val[5]=="/" and val[8]=="/" and val[11]=="-" and val[14]==":":
+                if "*" in str(data_break[0]):
+                    cont_ = str(str(data_break[0]).split("*")[1])
 
-
-
-                    print(">:-|   ->>", str(val))
-                    collected_.append(val)
+                if "$" in str(data_break[1]):
+                     # CONVERT MSGS TO A LIST OF LISTS
+                    msg_list = str(data_break[1]).split("$")
+                    for i, val in enumerate(msg_list):
+                        temp_msg = val.split("*")
+                        if "INVITE" in str(temp_msg) or "MSGS_OF" in str(temp_msg) or len(temp_msg) < 4:
+                            pass
+                        else:
+                            print("TEMP_MSG:: ", str(temp_msg))
+                            buff_lst.append(temp_msg)
 
 
-            for what in collected_:
-                print("COL:: ", str(what))
+                    for msg in buff_lst:
+                        print("[STACK_ED]::", str(msg))
 
 
-            time.sleep(2)
-            file_name = f"MSGS/{sender__}.txt"
-            self.FM.write_file(file_name, collected_, "$", "w")
 
-            print("AND NOW???")
+                    file_name = f"MSGS/{cont_}.txt"
+                    self.FM.write_file(file_name, "", "$", "w")
+                    self.FM.write_file(file_name, str(data_break[1]), "$", "w")
 
-                # eg>  *2022/12/22-05:02*MSG*
-                # if:
-                    # [0]=="*"
-                    # [5]=="/"
-                    # [8]=="/"
-                    # [11]=="-"
-                    # [14]==":"
-            
-
+            except Exception as e:
+                print("[ERROR]::[STACK_MSGS]::",str(e))
 
 
 
@@ -136,7 +139,10 @@ class connections():
                         # MESSAGING 
                         elif "MSG" in data:
                             print("[MSG_IN]:", str(data))
-                            self.msg_of(data)
+                            if "SAVED" in data:
+                                self.msg_of(data)
+                            else:
+                                self.stack_msgs(data)
 
                         #UPDATE CONTACTS LIST DATA
                         elif "STATE" in data:
@@ -195,7 +201,7 @@ class connections():
                     self.msg = self.FM.read_file(msg_pat, "*")
                     self.conts = self.FM.read_file(cont_path, "*")
 
-
+                    # STANDARD
                     if self.init_data != self.data and len(self.data) > 1:
                         print(f"INIT: {self.init_data} :: DATA: {self.data} \n ")
                         toSend = ""
@@ -218,34 +224,27 @@ class connections():
                             time.sleep(1000)
                             break
 
-
-
+                    # CONTACTS
                     if self.init_conts != self.conts and len(self.conts) > 1:
                         toSend = ""
                         for _ in self.conts:
                             toSend+=str(_)+"*"
-
+                        
                         msg_len = len(toSend)
                         send_len = str(msg_len).encode()
                         send_len += b' ' * (64 - len(send_len))
                         try:
                             self.sock.send(send_len)
                             self.sock.send(toSend.encode())
-                            #print("toSend:: ", str(toSend))
                             #RESET DATA
                             self.init_conts = self.conts
-                            #print(f"INIT_DATA ::\n>{self.init_data}\nN_DATA ::\n>{self.data}\n")
+                            #print("[MSG_SENT]:", str(toSend))
                             toSend = ""
-                            print("[MSG_SENT]:", str(toSend))
                         except Exception as e:
                             print("[FUCKUP]::SEND_MSG:TO_CONTACT:", str(e))
                             break
 
-
-
-
                     # MSGS
-
                     if self.init_msg != self.msg and len(self.msg) > 0:
                         print("[SENDING_MSG_OUT]")
                         toSend = ""
@@ -263,7 +262,7 @@ class connections():
                             self.init_msg = self.msg
                             #print(f"INIT_DATA ::\n>{self.init_data}\nN_DATA ::\n>{self.data}\n")
                             toSend = ""
-                            print("[MSG_SENT]:", str(toSend))
+                            #print("[MSG_SENT]:", str(toSend))
                         except Exception as e:
                             print("[FUCKUP]::SEND_MSG:TO_CONTACT:", str(e))
                             break

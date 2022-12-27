@@ -41,6 +41,8 @@ try:
     from kivy.core.window import Window
     Window.size = (300, 560)
 
+    from kivymd.uix.gridlayout import MDGridLayout
+
     from kivy.lang import Builder
 
     #PROGRAM FILES IMPORTS
@@ -97,11 +99,14 @@ class Search(Screen):
 #*********************************************************************************************************
 
 
-class Chat_Msg(BoxLayout):
+class Chat_Msg(MDGridLayout):
+    
     root_widget = ObjectProperty()
     user_m = StringProperty()
     msg_text = StringProperty()
     msg_dt = StringProperty()
+    side = StringProperty()
+
 
     def on_release(self, **kwargs):
         super().on_release(**kwargs)
@@ -119,6 +124,7 @@ class Scroll_Chats(RecycleView):
         self.user_ = ""
         self.msg_ = ""
         self.msg_dt = ""
+        self.side = ""
 
 
         print("[Scroll_Chats]:: INIT")
@@ -135,24 +141,16 @@ class Scroll_Chats(RecycleView):
                 user_name = str(user_data[0])
                 get_msgs = "MSG_OF*"+str(user_name)+"*"+str(self.target_user)+"*"
                 self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "*", "w")
-
-                chat = self.FM.read_file(f"MSGS/{str(self.target_user)}.txt", "$")[1:-1]
-                for c in chat:
-                    print("[CHAT]: ", str(c))
+                chat = self.FM.read_file(f"MSGS/{str(self.target_user)}.txt", "$")
 
                 if chat:
-
-                    #self.data = [{'text': str(x), "root_widget": self} for x in chat if x]
                     self.data = [{
                                 'user_m': str(x.split('*')[0]),
                                 'msg_dt': str(x.split('*')[2]),
                                 'msg_text': str(x.split('*')[3]),
+                                "side": "left" if x.split('*')[0] == self.target_user else "right",
                                 "root_widget": self}
                                     for x in chat if x]
-
-
-
-
         except Exception as e:
             print("[ERROR]:[SCROLL_CHATS]:", str(e))
 
@@ -175,24 +173,7 @@ class Chats(Screen):
 
 
 
-        try:
-            # get the Scroll_Me widget
-            rv = self.ids.Scroll_Chats
-#
-        #    # get the index of the last item in the RecycleView
-            last_index = len(rv.data) - 1
-#
-        #    # scroll to the last item, with no animation
-            rv.scroll_to(last_index, animate=False)
-        except Exception as e:
-            print("[ERROR]::[SCROLL_DOWN]::[CHATS]", str(e))
-
-
-
-
     def go_on(self, inst):
-        #print("[CHATS]::[Go_On]")
-
         user_data = self.FM.read_file("CHATS/CURRENT.txt", "*")
         self.target_user = str(user_data[0])
         self.ids['TARGET_USER'].text = str(self.target_user)

@@ -6,7 +6,6 @@
 
 #: import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout
 
-
 #: import os os
 #: import Window kivy.core.window.Window
 #: import IconLeftWidget kivymd.uix.list.IconLeftWidget
@@ -236,38 +235,35 @@ WindowManager:
         
 
 #-----------------------------------------------------------------------------------------------------
-#<Chat_Msgs>:
-#    # Default style for the button
-#    font_size: 15
-#    size_hint: (1, None)
-#    height: self.texture_size[1]
-#    padding: 0, 15
-#    background_color: (0.7, 0.9, 1, 1)
-#    color: (0, 0, 0, 1)
-
 
 
 <Chat_Msg>:
-    # Default style for the button
+    rows: 3
+    padding: (0, 5, 30, 0) if root.side == "left" else (30, 5, 0, 0)
     font_size: 15
     size_hint: (1, None)
-    #size: root.size
-    #height: self.texture_size[1]
-        #self.user_m.minimum_height + self.msg_text.minimum_height + self.msg_dt.minimum_height + 50
     height: self.minimum_height
     background_color: (0.7, 0.9, 1, 1)
     color: (0, 0, 0, 1)
     MD_RECT_BUTTON:
         size_hint: 2, None
-        text: root.user_m
+        text: root.user_m[:2]
+        font_size: 15
         on_release: print(root.user_m)
+
     MD_RECT_BUTTON:
         size_hint: 4, None
         text: root.msg_text
+        font_size: 15
+        text_size: self.size
+        background_color: (0.7, 0.6, 1, 1)
         on_release: print(root.msg_text)
+
     MD_RECT_BUTTON:
         size_hint: 4, None
         text: root.msg_dt
+        font_size: 12
+        color: (0.5, 0.5, 0.5, 1)
         on_release: print(root.msg_dt)
 
 
@@ -288,33 +284,35 @@ WindowManager:
 
     MDFloatLayout:
         MDFloatLayout:
-            size_hint: 1, .8
+            size_hint: 1, .65
             pos_hint: {'x': 0,'y': 0.2}
             Scroll_Chats:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.4}
                 id: Scroll_Chats
+                scroll_y: 0                     # forces scrolling to list bottom after adding an entry
+                effect_cls: "ScrollEffect"      # prevents overscrolling
 
 
-        Button:
+        MD_RECT_BUTTON:
             id: TARGET_USER
             text: "USER"
             size_hint: .6, .1
             pos_hint: {'x': 0.2,'y': 0.9}
 
-        Button:
+        MD_RECT_BUTTON:
             id: USER_STATUS
             text: "OFFLINE"
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.9}
 
-        Button:
+        MD_RECT_BUTTON:
             id: Home
             text: "Home"
             size_hint: .5, .1
             pos_hint: {'x': 0.0,'y': 0.8}
             on_release: root.home()
 
-        Button:
+        MD_RECT_BUTTON:
             id: CONTACTS
             text: "CONTACTS"
             disabled: False

@@ -67,6 +67,7 @@ class server():
                 #print("CONVERTING")
                 for _ in data_lst:
                     data_str += str(_)+str(delim)
+
                 #print("LST_TO_STR", data_str)
             return data_str
         except Exception as e:
@@ -84,6 +85,7 @@ class server():
         u_q = ""
         u_dt = ""
         up_cont = ""
+        f_u = []
         conts_lst_str = ""
 
         stats_ = ""
@@ -99,29 +101,49 @@ class server():
                         # FRST CHECK STATUS AND UPDATE TO USE THE CURRENT TIME
                         #   get_user_state
                         for u in user_conts:
-                            print("\n\nUSER_IN_QU: ", str(u))
+                            #print("\n\nUSER_IN_QU: ", str(u))
                             if not u:
                                 pass
                             try:
                                 p_u = str(u)
-                                u_q = str(p_u.split("@")[0])
-                                #print("GET_USER_STATUS->: ", u_q)
+                                f_u = p_u.split("@")
+                                if len(f_u) > 1:
+                                    u_q = str(f_u[0])
+
+                                # u_q = str(p_u.split("@")[0])
+                                # print("\nGET_USER_STATUS->: ", u_q)
+
+
+
+                    # BUG_HERE -....>
+
 
                                 if u_q:
                                     u_dt = self.get_user_state(u_q)
-                                    print("[U_DT]::", u_dt)
-                                    stats_ = u_q+"*"+u_dt
+                                    #print("[U_DT]::", u_dt)
+                                    if u_dt:
+                                        stats_ = u_q+"*"+u_dt
+                                    #print("[STAT]:", str(stats_))
                             except Exception as e:
-                                print("[GET_USER_ERROR]::", str(e))
+                                print("[GET_USER_ERROR]:[?]:", str(e), "[WHAT???!!!]::", )
 
                             if stats_:
                                 try:
+
+
+
+
+
+
                                     #print("[CONT]:: ", str(stats_))
                                     if stats_ not in str(data_up):
                                         data_up.append(stats_)
                                 except Exception as e:
                                     print("[ERROR]::[GET_CONTS]::[STATUS]::", str(e))
-                        conts_lst_str = self.lst_to_str(data_up, "%")
+                        try:
+                            conts_lst_str = self.lst_to_str(data_up, "%")
+                        except:
+                            pass
                         #print("CONTS:: ", str(conts_lst_str))
 
                         return conts_lst_str
@@ -194,7 +216,7 @@ class server():
 
         now = datetime.now()
         # Format the date and time as a string in the desired format
-        date_time_str = now.strftime("%Y-%m-%d-%H-%M")
+        date_time_str = now.strftime("%Y-%m-%d-%H-%M-%S")
 
         f_name = "USERS/"+str(user)+".txt"
         user_data = self.FM.read_file(f_name, "*")
@@ -209,13 +231,13 @@ class server():
                 #print("[WTF::]::", str(i),"::",str(u_), "<--")
                 if i == 3:
                     last_seen = str(u_)
-                    print("LAST_SEEN:: ", str(u_))
+                    #print("LAST_SEEN:: ", str(u_))
                 if i == 4:
                     status_ = str(u_)
-                    print("STATUS:: ", str(u_))
+                    #print("STATUS:: ", str(u_))
 
             ret_val = last_seen+"*"+status_
-            print("[GET_STATUS]::[RET_VAL]::", ret_val)
+            #print("[GET_STATUS]::[RET_VAL]::", ret_val)
             return ret_val
 
 
@@ -240,7 +262,7 @@ class server():
         try:
             now = datetime.now()
             # Format the date and time as a string in the desired format
-            date_time_str = now.strftime("%Y-%m-%d-%H-%M")
+            date_time_str = now.strftime("%Y-%m-%d-%H-%M-%S")
 
 
             if "OFFLINE" in state:
@@ -363,6 +385,7 @@ class server():
             return "FAIL"
 
     # MESSAGING
+    # SAVE MSGS
     def msg_to(self, data):
         ###
         #	|-MSGS/
@@ -392,7 +415,7 @@ class server():
             now = datetime.now()
 
             # Format the date and time as a string in the desired format
-            date_time_str = now.strftime("%Y-%m-%d-%H-%M")
+            date_time_str = now.strftime("%Y-%m-%d-%H-%M-%S")
             to_send = "*"+date_time_str+"*"+the_msg
             print("TO_SAVE:: ", str(to_send))
 
@@ -427,6 +450,8 @@ class server():
         #    # GET CURRENT IP ADDRESS
         #    f_name = f"USERS/{to_user}.txt"
         #    to_data = self.FM.read_file(f_name, "*")
+            # SEND PING FOR MSG_REQ 
+
         #    if len(to_data) >= 6:
         #        msgs_file = f"MSGS/{str(to_user)}.txt"
         #        self.write_file(msgs_file, to_send, "&", "a")
@@ -435,10 +460,48 @@ class server():
         #        return "FAILED"
 
 
+
+
+    # REORDER BY DATE-TIME
+    def re_order(self, data):
+        try:
+            print("RE_ORDERING")
+            ret_str = ""
+            buff_lst = []
+            temp_msg = []
+            shifted = []
+            
+
+            # CONVERT MSGS TO A LIST OF LISTS
+            msg_list = data.split("$")
+            for i, val in enumerate(msg_list):
+                temp_msg = val.split("*")
+                if "INVITE" in str(temp_msg) or "MSGS_OF" in str(temp_msg) or len(temp_msg) <= 3:
+                    print("PASSING:::: ", str(temp_msg))
+                    pass
+                else:
+                    buff_lst.append(temp_msg)
+                    print("BUFF:: ", str(temp_msg))
+            
+            sorted_msgs = sorted(buff_lst, key=lambda x: x[2])
+
+            for i in sorted_msgs:
+                print("SORTED:: ", str(i))
+
+            return sorted_msgs
+
+        except Exception as e:
+            print("[ERROR]::[MSG_OF]::[RE_ORDER]", str(e))
+
+
+    # COLLECT MSGS
     def msg_of(self, data):
         print("MSG_OF:: ", str(data))
         dataLs = data.split("*")
         ret_lst = []
+        set_lst = []
+        sorted_msgs = []
+        ret_str = ""
 
         dir_of = "MSGS/"+str(dataLs[1])+"/"
         dir_to = "MSGS/"+str(dataLs[2])+"/"
@@ -469,8 +532,34 @@ class server():
                 for m_ in msg_to:
                     ret_lst.append(str(dataLs[1]) + "*" + str(m_) + "&")
                     print("[MSG_TO]:", str(dataLs[1]) + "*" + str(m_) + "&")
-            ret_ = self.lst_to_str(ret_lst, "&")
-            return "MSGS_OF*USER$"+ret_
+            
+            for i, il in enumerate(ret_lst):
+                i_s = str(il).split("*")
+                print("[I]:", str(i))
+                if "INVITE" in str(i_s) or "MSGS_OF" in str(i_s):
+                    print("[DATA]::[SHAVING]", str(i_s))
+                    continue
+                elif len(i_s) > 3:
+                    print("[SET_LIST]::[i_s]:", str(i_s))
+                    set_lst.append(i_s)
+            
+            #print("\n\nTEST_ING\n[SET_LST]->[SORTED_MSGS]:")
+            #for i in set_lst:
+            #    print("[SORTED]:: -->> ", str(i))
+
+
+            sorted_msgs = sorted(set_lst, key=lambda x: x[2])
+            print("\n\n")
+
+            for i in sorted_msgs:
+                #print("[SORTED]:: -->> ", str(i))
+                ret_str += self.lst_to_str(i, "*")+"$"
+
+            #print("[MSG_SORTED]::[RET_STR]::", str(ret_str), "\n\n---------")
+
+
+
+            return "MSGS_OF*"+ str(dataLs[2])+"@"+ret_str
         else:
              return "MSGS&ERROR"
 
