@@ -49,8 +49,8 @@ class connections():
         if "SAVED" in data:
             ls_data = data.split("*")
 
-            for i in ls_data:
-                print("MSG:: ", str(i))
+            #for i in ls_data:
+            #    print("MSG:: ", str(i))
 
             if len(ls_data) >= 6:
                 user_ = str(ls_data[2])
@@ -59,7 +59,7 @@ class connections():
                 target_file = "MSGS/"+user_+".txt"
                 to_save = dt_stamp+"*"+msg_of
                 self.FM.write_file(target_file, msg_of, "&", "a")
-                print("[MSG]::", to_save, ":[SAVED]:", target_file)
+                #print("[MSG]::", to_save, ":[SAVED]:", target_file)
 
 
 
@@ -79,10 +79,10 @@ class connections():
         if "MSGS_OF" in data:
             try:
 
-                print("[STACK_MSGS]:: ", str(data))
+                #print("[STACK_MSGS]:: ", str(data))
                 data_break = data.split("@")
-                print("[DATA_BREAK][0]:", data_break[0])
-                print("[DATA_BREAK][1]:", data_break[1])
+                #print("[DATA_BREAK][0]:", data_break[0])
+                #print("[DATA_BREAK][1]:", data_break[1])
 
                 if "*" in str(data_break[0]):
                     cont_ = str(str(data_break[0]).split("*")[1])
@@ -95,12 +95,14 @@ class connections():
                         if "INVITE" in str(temp_msg) or "MSGS_OF" in str(temp_msg) or len(temp_msg) < 4:
                             pass
                         else:
-                            print("TEMP_MSG:: ", str(temp_msg))
+                            #print("TEMP_MSG:: ", str(temp_msg))
                             buff_lst.append(temp_msg)
 
 
-                    for msg in buff_lst:
-                        print("[STACK_ED]::", str(msg))
+
+                    
+                    #for msg in buff_lst:
+                    #    print("[STACK_ED]::", str(msg))
 
 
 
@@ -108,6 +110,9 @@ class connections():
                     self.FM.write_file(file_name, "", "$", "w")
                     self.FM.write_file(file_name, str(data_break[1]), "$", "w")
 
+                # FOR TESTING ONLY
+                return buff_lst
+                # ^^^^^^^^^^^^^^^^
             except Exception as e:
                 print("[ERROR]::[STACK_MSGS]::",str(e))
 
@@ -138,7 +143,7 @@ class connections():
 
                         # MESSAGING 
                         elif "MSG" in data:
-                            print("[MSG_IN]:", str(data))
+                            #print("[MSG_IN]:", str(data))
                             if "SAVED" in data:
                                 self.msg_of(data)
                             else:
@@ -170,10 +175,6 @@ class connections():
                 self.sock.close()
                 sys.exit(1)
 
-
-
-
-
     #TRANSMIT
     def send_msg(self):
         self.E = threading.Event()
@@ -203,7 +204,7 @@ class connections():
 
                     # STANDARD
                     if self.init_data != self.data and len(self.data) > 1:
-                        print(f"INIT: {self.init_data} :: DATA: {self.data} \n ")
+                        #print(f"INIT: {self.init_data} :: DATA: {self.data} \n ")
                         toSend = ""
                         for _ in self.data:
                             toSend+=str(_)+"*"
@@ -246,7 +247,7 @@ class connections():
 
                     # MSGS
                     if self.init_msg != self.msg and len(self.msg) > 0:
-                        print("[SENDING_MSG_OUT]")
+                        #print("[SENDING_MSG_OUT]")
                         toSend = ""
                         for _ in self.msg:
                             toSend+=str(_)+"*"

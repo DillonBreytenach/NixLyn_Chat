@@ -243,13 +243,15 @@ WindowManager:
     font_size: 15
     size_hint: (1, None)
     height: self.minimum_height
-    background_color: (0.7, 0.9, 1, 1)
+    background_color: (0.7, 0.6, 1, 1)
     color: (0, 0, 0, 1)
     MD_RECT_BUTTON:
         size_hint: 2, None
         text: root.user_m[:2]
         font_size: 15
         on_release: print(root.user_m)
+
+
 
     MD_RECT_BUTTON:
         size_hint: 4, None
@@ -259,10 +261,11 @@ WindowManager:
         background_color: (0.7, 0.6, 1, 1)
         on_release: print(root.msg_text)
 
+
     MD_RECT_BUTTON:
         size_hint: 4, None
         text: root.msg_dt
-        font_size: 12
+        font_size: 10
         color: (0.5, 0.5, 0.5, 1)
         on_release: print(root.msg_dt)
 
@@ -320,7 +323,7 @@ WindowManager:
             pos_hint: {'x': 0.5,'y': 0.8}
             on_release: root.contacts()
 
-        Button:
+        MD_RECT_BUTTON:
             id: EXIT
             text: "EXIT"
             size_hint: .2, .1
@@ -333,7 +336,7 @@ WindowManager:
             size_hint: .8, .1
             pos_hint: {'x': 0.0,'y': 0.0}
 
-        Button:
+        MD_RECT_BUTTON:
             id: SEND_IT
             text: "SEND"
             size_hint: .2, .1

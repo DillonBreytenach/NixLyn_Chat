@@ -55,6 +55,8 @@ except Exception as e:
 
 
 name_ = ""
+hold_ = True
+
 
 #POPUPS
 #*********************************************************************************************************
@@ -133,13 +135,16 @@ class Scroll_Chats(RecycleView):
         # trigger variable
 
     def go_on(self, inst):
+        global hold_
+        if hold_ == True:
+            return
         try:
             user_data = self.FM.read_file("CHATS/CURRENT.txt", "*")
             if user_data:
                 self.target_user = str(user_data[0])
                 user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
                 user_name = str(user_data[0])
-                get_msgs = "MSG_OF*"+str(user_name)+"*"+str(self.target_user)+"*"
+                get_msgs = "MSG_OF*"+str(user_name)+"*"+str(self.target_user)+"*^"
                 self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "*", "w")
                 chat = self.FM.read_file(f"MSGS/{str(self.target_user)}.txt", "$")
 
@@ -147,7 +152,7 @@ class Scroll_Chats(RecycleView):
                     self.data = [{
                                 'user_m': str(x.split('*')[0]),
                                 'msg_dt': str(x.split('*')[2]),
-                                'msg_text': str(x.split('*')[3]),
+                                'msg_text': str(x.split('*')[3][:-1]),
                                 "side": "left" if x.split('*')[0] == self.target_user else "right",
                                 "root_widget": self}
                                     for x in chat if x]
@@ -165,13 +170,10 @@ class Chats(Screen):
         self.state = ""
         self.target_user = ""
 
-
     def on_enter(self):
         print("[ON_ENTER]:CHATS_SCREEN")
         if "Home" not in self.FM.read_file("CHATS/CURRENT.txt", "&"):
             Clock.schedule_interval(self.go_on, 1)
-
-
 
     def go_on(self, inst):
         user_data = self.FM.read_file("CHATS/CURRENT.txt", "*")
@@ -179,19 +181,20 @@ class Chats(Screen):
         self.ids['TARGET_USER'].text = str(self.target_user)
         self.chat_info()
 
-
     def send_it(self):
         user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
         self.user_name = str(user_data[0])
         msg_out = str(self.ids['MSG_OUT'].text)
         to_send = "MSG_TO*"+str(self.target_user)+"*"+self.user_name+"*"+msg_out+"*"
-        print("\nSEND:\n >> ", to_send)
+        #print("\nSEND:\n >> ", to_send)
         self.FM.write_file("SOCKET_DATA/MSG_TO.txt", to_send, "&", "w")
         # REMEMBER TO CLEAR THE InputText
         time.sleep(0.5)
         self.ids['MSG_OUT'].text = ""
 
     def chat_info(self):
+        global hold_
+        hold_ = False
         #print("[CHAT_INFO]")
         msg_ = "GET_STATE*"+str(self.target_user)+"*"+str(self.FM.read_file("CHATS/CURRENT.txt", "&")[0])
         #print("[GET_STATE]:: ", str(msg_))
@@ -201,21 +204,40 @@ class Chats(Screen):
         self.state = self.FM.read_file("CHATS/TARGET_STATE.txt", "*")
         #print("SELF.STATE:: ", str(self.state))
         try:
-            self.ids['USER_STATUS'].text = str(self.state[1])
+            print("[GET_CONT_STAT]:", str(self.state))
+            if "OFFLINE" in  str(self.state[2]):
+                self.ids['USER_STATUS'].text = str(self.state[1])
+            else:
+                # ToDo: Check if Date isToday, if so, Calc how many min, sec, hours ago...
+                self.ids['USER_STATUS'].text = str(self.state[2])
+                
+
+            get_msgs = "MSG_OF*"+str(name_)+"*"+str(self.target_user)+"*^^"
+            self.FM.write_file("SOCKET_DATA/MSG_TO.txt", get_msgs, "&", "w")
         except:
             print("TARGET_STATE_NOT_YET_LOADED")
+        self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", msg_, "*", "w")
 
     def home(self):
+        global hold_
+        hold_ = True
+
         self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
         MDApp.get_running_app().root.current = 'Home'
         Clock.unschedule(self.go_on)
 
     def contacts(self):
+        global hold_
+        hold_ = True
+
         self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
         MDApp.get_running_app().root.current = 'Contacts'
         Clock.unschedule(self.go_on)
 
     def back(self):
+        global hold_
+        hold_ = True
+
         self.FM.write_file("CHATS/CURRENT.txt", "", "&", "w")
         user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
         self.FM.write_file("SOCKET_DATA/OUT_BOUND.txt", "LOGOUT*"+str(user_data)[2:-2]+"*OFFLINE", "*", "w")
@@ -400,6 +422,7 @@ class Login(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.FM = File_man()
+    
         
 
     def login_(self):
@@ -428,10 +451,9 @@ class Login(Screen):
             print("NOT_LOGGED_IN")
             MDApp.get_running_app().root.current = 'Register'
 
-
-
     def back(self):
         MDApp.get_running_app().root.current = 'Main_WID'
+
 # REGISTER
 class Register(Screen):
     def __init__(self, **kw):
@@ -452,14 +474,13 @@ class Register(Screen):
                 print("REGISTERED")
                 Welcome().open()
                 MDApp.get_running_app().root.current = 'Home'
-            if "PLEASE_LOGIN" in Reg_Confirm:
+            elif "PLEASE_LOGIN" in Reg_Confirm:
                 print("PLAESE_LOGIN")
                 MDApp.get_running_app().root.current = 'Login'
-            if "FAILED_REG" in Reg_Confirm:
+            elif "FAILED_REG" in Reg_Confirm:
                 Reg_Fail().open()
         except Exception as e:
             print("REG_ERROR: ", str(e))
-
 
     def back(self):
         MDApp.get_running_app().root.current = 'Main_WID'

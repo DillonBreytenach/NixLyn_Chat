@@ -168,7 +168,7 @@ class server():
         user_file = "USERS/"+str(data[2])+".txt"
 
         is_user = self.FM.check_file(user_file)
-        print("[CHECKING_FILE]::", str(user_file))
+        #print("[CHECKING_FILE]::", str(user_file))
         if is_user != True:
             print("[USER_NOT_FOUND]")
             return "NOT_FOUND"
@@ -176,13 +176,13 @@ class server():
             print("[FETCHING_DATA]::", str(data[2]))
 
 
-        print("data[2]:: ", str(data[2]))
+        #print("data[2]:: ", str(data[2]))
         new_cont_c = self.FM.check_file(new_cont_f_name)
         if new_cont_c == True:
             try:
                 #GET_OLD_LIST
                 c_list = self.FM.read_file(user_f_name, "%")
-                print("C_LIST:: ", str(c_list))
+                #print("C_LIST:: ", str(c_list))
                 #CHECK IF ALREADY THERE
                 n_list = []
                 if str(data[2]) in c_list:
@@ -203,7 +203,7 @@ class server():
                     self.FM.write_file(user_f_name, n_list, "%", "w")
                     # CREATE CHAT DIRECTORY
                     self.FM.make_dir(msgs_f_name)
-                    self.FM.write_file(chat_f_name, "INVITE_FROM*"+str(data[1])+"*TO*"+str(data[2])+"*", "&", "w")
+                    self.FM.write_file(chat_f_name, str(data[2])+"*", "&", "w")
 
                     return str(n_list)
             except Exception as e:
@@ -400,14 +400,14 @@ class server():
         check_file =  False
         ret_ = ""
 
-        print("\n\nGET_MSG\n\n>>>", str(data))
+        #print("\n\n[MSG_TO]\n>>>", str(data))
         break_msg = data.split("*")
         if len(break_msg) > 3:
-            print("TO : ", str(break_msg[1]))
+            #print("TO : ", str(break_msg[1]))
             to_user = str(break_msg[1])
-            print("OF : ", str(break_msg[2]))
+            #print("OF : ", str(break_msg[2]))
             of_user = str(break_msg[2])
-            print("MSG: ", str(break_msg[3]))
+            #print("MSG: ", str(break_msg[3]))
             the_msg = str(break_msg[3])
 
             # DATE_TIME_STAMP
@@ -417,15 +417,13 @@ class server():
             # Format the date and time as a string in the desired format
             date_time_str = now.strftime("%Y-%m-%d-%H-%M-%S")
             to_send = "*"+date_time_str+"*"+the_msg
-            print("TO_SAVE:: ", str(to_send))
-
-
+            #print("TO_SAVE:: ", str(to_send))
             file_name = "MSGS/"+to_user+"/"+of_user+".txt"
-            print("FILE-> ", str(file_name))
+            #print("FILE-> ", str(file_name))
 
         check_file = self.FM.check_file(file_name)
         if check_file == True:
-            print("[ACCESS_GRANTED]")
+            #print("[ACCESS_GRANTED]")
             self.FM.write_file(file_name, to_send, "&", "a")
             ret_ = "MSG*SAVED*"+to_user+"*"+to_send+"*"
             return ret_
@@ -433,32 +431,6 @@ class server():
         else:
             print("[ACCESS_DENIED]")
             return "MSG*ACCESS_DENIED*"+to_user+"*"+to_send+"*"
-
-        # CONFIGURE THE 
-
-
-
-
-
-
-        # WRITE MSG TO FILE
-
-        # CHECK IF CLIENT IS ONLINE
-            # SEND MSG ["DELIM","OF", "MSG"]
-        #uc_state = self.get_user_state(str(break_msg[1]))
-        #if "ONLINE" in uc_state:
-        #    # GET CURRENT IP ADDRESS
-        #    f_name = f"USERS/{to_user}.txt"
-        #    to_data = self.FM.read_file(f_name, "*")
-            # SEND PING FOR MSG_REQ 
-
-        #    if len(to_data) >= 6:
-        #        msgs_file = f"MSGS/{str(to_user)}.txt"
-        #        self.write_file(msgs_file, to_send, "&", "a")
-        #        return "SAVED"
-        #    else:
-        #        return "FAILED"
-
 
 
 
@@ -496,7 +468,7 @@ class server():
 
     # COLLECT MSGS
     def msg_of(self, data):
-        print("MSG_OF:: ", str(data))
+        #print("MSG_OF:: ", str(data))
         dataLs = data.split("*")
         ret_lst = []
         set_lst = []
@@ -507,7 +479,7 @@ class server():
         dir_to = "MSGS/"+str(dataLs[2])+"/"
 
 
-        print(f"DIR_OF:: {dir_of} \n DIR_TO:: {dir_to}")
+        #print(f"DIR_OF:: {dir_of} \n DIR_TO:: {dir_to}")
 
         if "ALL" in str(dataLs[2]):
             msgs_all = self.FM.get_file_data(dir_of)
@@ -523,7 +495,7 @@ class server():
             if msg_from:
                 for m_ in msg_from:
                     ret_lst.append(str(dataLs[2]) + "*" + str(m_) + "&")
-                    print("[MSG_OF]:", str(dataLs[2]) + "*" + str(m_) + "&")
+                    #print("[MSG_OF]:", str(dataLs[2]) + "*" + str(m_) + "&")
 
             # CELLECT SENT MSGS
             my_file = dir_to+str(dataLs[1])+".txt"
@@ -531,16 +503,17 @@ class server():
             if msg_to:
                 for m_ in msg_to:
                     ret_lst.append(str(dataLs[1]) + "*" + str(m_) + "&")
-                    print("[MSG_TO]:", str(dataLs[1]) + "*" + str(m_) + "&")
+                    #print("[MSG_TO]:", str(dataLs[1]) + "*" + str(m_) + "&")
             
             for i, il in enumerate(ret_lst):
                 i_s = str(il).split("*")
-                print("[I]:", str(i))
+                #print("[I]:", str(i))
                 if "INVITE" in str(i_s) or "MSGS_OF" in str(i_s):
-                    print("[DATA]::[SHAVING]", str(i_s))
+                    #print("[DATA]::[SHAVING]", str(i_s))
                     continue
                 elif len(i_s) > 3:
-                    print("[SET_LIST]::[i_s]:", str(i_s))
+                    #print("[SET_LIST]::[i_s]:", str(i_s))
+                    #i_s = self.clean_up(i_s)
                     set_lst.append(i_s)
             
             #print("\n\nTEST_ING\n[SET_LST]->[SORTED_MSGS]:")
@@ -549,19 +522,17 @@ class server():
 
 
             sorted_msgs = sorted(set_lst, key=lambda x: x[2])
-            print("\n\n")
+
 
             for i in sorted_msgs:
                 #print("[SORTED]:: -->> ", str(i))
                 ret_str += self.lst_to_str(i, "*")+"$"
 
-            #print("[MSG_SORTED]::[RET_STR]::", str(ret_str), "\n\n---------")
-
-
-
             return "MSGS_OF*"+ str(dataLs[2])+"@"+ret_str
         else:
              return "MSGS&ERROR"
+
+
 
 
     #CLIENT_THREAD_HANDLE
@@ -617,7 +588,7 @@ class server():
 
                     # MESSAGING
                     if "MSG_TO" in data:
-                        print("[MSG_TO]:", str(data))
+                        #print("[MSG_TO]:", str(data))
                         ret_ = self.msg_to(data)
                         if ret_:
                             self.reply(conn, ret_)
@@ -626,7 +597,7 @@ class server():
                         continue
 
                     if "MSG_OF" in data:
-                        print("[MSG_OF]:", str(data))
+                        #print("[MSG_OF]:", str(data))
                         ret_ = self.msg_of(data)
                         if ret_:
                             self.reply(conn, ret_)

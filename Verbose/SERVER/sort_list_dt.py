@@ -3,8 +3,59 @@ from datetime import datetime
 from dateutil import parser
 
 class SortMsgs():
-    #def __init__(**kw):
-    #    super(SortMsgs, self).__init__(**kw)
+    def __init__(self, **kw):
+        super(SortMsgs, self).__init__(**kw)
+
+
+    def stack_msgs(self, data):
+        cont_ = ""
+        file_name = ""
+        collected_ = ""
+        data_break = []
+        buff_lst = []
+        temp_msg = []
+        shifted = []
+
+        if "ACCESS_DENIED" in data:
+            self.FM.write_file("SOCKET_DATA/MSG_OF.txt", data, "*", "w")
+
+        if "MSGS_OF" in data:
+            try:
+
+                print("[STACK_MSGS]:: ", str(data))
+                data_break = data.split("@")
+                print("[DATA_BREAK][0]:", data_break[0])
+                print("[DATA_BREAK][1]:", data_break[1])
+
+                if "*" in str(data_break[0]):
+                    cont_ = str(str(data_break[0]).split("*")[1])
+
+                if "$" in str(data_break[1]):
+                     # CONVERT MSGS TO A LIST OF LISTS
+                    msg_list = str(data_break[1]).split("$")
+                    for i, val in enumerate(msg_list):
+                        temp_msg = val.split("*")
+                        if "INVITE" in str(temp_msg) or "MSGS_OF" in str(temp_msg) or len(temp_msg) < 4:
+                            pass
+                        else:
+                            print("TEMP_MSG:: ", str(temp_msg))
+                            buff_lst.append(temp_msg)
+
+
+                    for msg in buff_lst:
+                        print("[STACK_ED]::", str(msg))
+
+
+
+                    file_name = f"MSGS/{cont_}.txt"
+                    self.FM.write_file(file_name, "", "$", "w")
+                    self.FM.write_file(file_name, str(data_break[1]), "$", "w")
+
+                # FOR TESTING ONLY
+                return buff_lst
+                # ^^^^^^^^^^^^^^^^
+            except Exception as e:
+                print("[ERROR]::[STACK_MSGS]::",str(e))
 
 
 
@@ -82,7 +133,7 @@ class SortMsgs():
 
     # USE buff[j] and buff[j-1] while j > len(buff)
 
-    def time_shift_1(self, buff_lst, )
+
 
 
 
@@ -127,24 +178,27 @@ class SortMsgs():
 
 
 
+
+
 if __name__=="__main__":
-    data = "\
-    MSGS_OF*USER$U3*INVITE_FROM*U4*TO*U3*\
-    $U4**2022-12-27-03-08-21*3rd_MSG\
-    $U3**2022-12-27-02-18-10*2nd_MSG\
-    $U4**2022-12-27-09-08-21*LAST_MSG\
-    $U4**2022-12-27-05-08-21*5th_MSG\
-    $U3**2022-12-27-04-18-22*4th_MSG\
-    $U4**2022-12-27-01-08-21*FIRST_MSG\
-    $U4**2022-12-28-07-08-21*7th_update\
-    $U3**2022-12-28-06-18-19*6th_update\
-    $U3**2022-12-28-02-18-19*2th_update\
-    $U3**2022-12-28-01-18-19*1th_update\
-    $U3**2022-12-28-03-18-19*3th_update\
-    $U3**2022-12-28-08-18-19*8th_update\
-    $U3**2022-12-28-04-18-19*4th_update\
-    $U3**2022-12-28-13-18-19*13th_update\
-    $U3*INVITE_FROM*U4*TO*U3*\
-    "
+    data = """
+    MSGS_OF*USER$U3*INVITE_FROM*U4*TO*U3*
+    $U4**2022-12-27-03-08-21*3rd_MSG
+    $U3**2022-12-27-02-18-10*2nd_MSG
+    $U4**2022-12-27-09-08-21*LAST_MSG
+    $U4**2022-12-27-05-08-21*5th_MSG
+    $U3**2022-12-27-04-18-22*4th_MSG
+    $U4**2022-12-27-01-08-21*FIRST_MSG
+    $U4**2022-12-28-07-08-21*7th_update\\n \n \\\n  \n
+    $U3**2022-12-28-06-18-19*6th_update
+    $U3**2022-12-28-02-18-19*2th_update
+    $U3**2022-12-28-01-18-19*1th_update
+    $U3**2022-12-28-03-18-19*3th_update
+    $U3**2022-12-28-08-18-19*8th_update\n \\n \\\n\\\\n \\n \\n
+    $U3**2022-12-28-04-18-19*4th_update
+    $U3**2022-12-28-13-18-19*13th_update
+    $U3*INVITE_FROM*U4*TO*U3*
+    """
     SM = SortMsgs()
-    SM.re_order(data)
+    #SM.re_order(data)
+    SM.stack_msgs(data)
