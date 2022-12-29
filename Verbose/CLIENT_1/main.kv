@@ -288,16 +288,18 @@ WindowManager:
     # The RecycleView data list is a list of dictionaries.  The keys in the dictionary specify the 
     # attributes of the widget.
 
-    font_size: 20
+    font_size: 30
     size_hint: (1.5, None)
-    height: 40
+    height: 60
     background_color: (0.5, 0.5, 0.5, 1)
     color: (0, 0, 0, 1)
     spacing: 0
+    padding: (5, 20, 5, 20)
 
     MD_RECT_BUTTON:
         size_hint: 2, None
         text: root.left_text
+        font_size: 20
         on_release: root.go_chat(root.left_text) #, print(f'Button {self.text} pressed')
     MD_RECT_BUTTON:
         text: root.right_text
@@ -322,7 +324,7 @@ WindowManager:
     MDFloatLayout:
 
         Scroll_Me:
-            pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+            pos_hint: {'center_x': 0.5, 'center_y': 0.25}
             id: Scroll_Me
 
         MD_RECT_BUTTON:

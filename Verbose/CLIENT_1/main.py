@@ -14,10 +14,9 @@
 
 #IMPORTS
 try:
-    #KIVY STD_UTILS IMPORTS
+    # BASELINE IMPORTS
     import string
     import sys
-    #BASELINE IMPORTS
     import threading
     import time
 
@@ -35,7 +34,7 @@ try:
     from kivy.uix.scrollview import ScrollView
     from kivy.uix.tabbedpanel import TabbedPanel
 
-    #KIVY_BASE
+    #KIVY'MD_BASE
     from kivymd.app import MDApp
     from kivy.clock import Clock
     from kivy.core.window import Window
@@ -50,11 +49,22 @@ try:
     from file_handle import File_man
 
 
+    # KIVY GARDEN IMPORTS
     #from kivy.garden.mapview import MapView, MarkerMap
-    from kivy_garden.mapview import MapView
+    from kivy_garden.mapview import MapView #, MarkerMap
 
 
+    # EISH GPS...
+    #from plyer import gps
+    #import phonenumbers
+    #from phonenumbers import geocoder
+    #target = phonenumbers.parse("+27720726777")
+    #yourLocal = geocoder.description_for_number(target, 'en')
+    #print(yourLocal)
 
+
+    import geocoder
+    
 
 except Exception as e:
     print("[ERROR]:[IMPORTS]", str(e))
@@ -113,7 +123,18 @@ class Search(Screen):
 class MapsView(MDGridLayout):
     def __init__(self, **kw):
         super(MapsView, self).__init__(**kw)
-        mapview = MapView(zoom=11, lat=50.6394, lon=3.057, size=(500, 400))
+        global lat_lng
+        g = geocoder.ip('me')
+        g.latlng
+        print(g.latlng)
+
+        lat = str(g.latlng[0])
+        lon = str(g.latlng[1])
+        lat_lng = g.latlng
+        print(f"[MY_LOACL]: \n   [LAT]:[{lat}]\n  [LON]:[{lon}]")
+
+
+        mapview = MapView(zoom=11, lat=lat, lon=lon, size=(500, 400))
         #global my_map
         self.add_widget(mapview)
 
@@ -129,6 +150,9 @@ class Maps_Page(Screen):
         print("[ON_ENTER]:[MAPS_SCREEN]")
         Clock.schedule_interval(self.go_on, 1)
 
+
+
+
     def go_on(self, inst):
         global name_
         #print(f"[USER]:[{name_}]")
@@ -140,8 +164,14 @@ class Maps_Page(Screen):
         Clock.unschedule(self.go_on)
 
     def my_local(self):
-        lat = "eg. 1"
-        lon = "eg. 2"
+        global lat_lng
+        g = geocoder.ip('me')
+        g.latlng
+        print(g.latlng)
+
+        lat = str(g.latlng[0])
+        lon = str(g.latlng[1])
+        lat_lng = g.latlng
         print(f"[MY_LOACL]: \n   [LAT]:[{lat}]\n  [LON]:[{lon}]")
 
     # MAP TOOLS
@@ -605,6 +635,9 @@ class MyMDApp(MDApp):
         except Exception as e:
             print("\n\n!!INIT_CONNECTION_ERROR!!\n\n", str(e))
         pass
+
+
+
 
     def build(self):
         kv = Builder.load_file("main.kv")
