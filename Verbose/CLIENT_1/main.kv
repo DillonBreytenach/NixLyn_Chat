@@ -24,7 +24,7 @@ WindowManager:
     New_Log:
     Search:
     Add_C:
-
+    Maps_Page:
 
 #-----------------------------------------------------------------------------------------------------
 # ATRIBUTES GLOBAL
@@ -34,8 +34,6 @@ WindowManager:
     md_bg_color: (69/255, 245/255, 39/255, 0.99)
     ripple_behavior: True
     
-
-
 
 
 
@@ -111,8 +109,6 @@ WindowManager:
                 root.add_c()
                 if root.add_ed == '1': print("ADDED")  #root.Add_Success()
 
-
-
 #-----------------------------------------------------------------------------------------------------
 #SCREENS
 #-----------------------------------------------------------------------------------------------------
@@ -131,6 +127,16 @@ WindowManager:
             id: back
             text: "BACK"
             on_release: root.back()
+
+
+        MD_RECT_BUTTON:
+            id: Home
+            text: "Home"
+            disabled: True
+            size_hint: .5, .1
+            pos_hint: {'x': 0.0,'y': 0.8}
+            on_release: root.home()
+
 <Search>:
     name: 'Search'
     MDFloatLayout:
@@ -144,8 +150,128 @@ WindowManager:
             text: "BACK"
             on_release: root.back()
 
+
+
+
 #-----------------------------------------------------------------------------------------------------
-    #CONTACTS && CHATS
+#MAPS_PAGE
+#-----------------------------------------------------------------------------------------------------
+
+<MapsView>:
+
+
+<Maps_Page>:
+	name: 'Maps'
+
+    #MAIN_PROFILE_SCREEN
+    MDFloatLayout:
+        orientation: 'vertical'
+
+#-----------------------------------------------------------------------------------------------------
+        # BASE 
+        MD_RECT_BUTTON: # USER
+            id: USER
+            text: "USER"
+            size_hint: .8, .1
+            pos_hint: {'x': 0.2,'y': 0.9}
+
+        MD_RECT_BUTTON: # HOME
+            id: Home
+            text: "Home"
+            disabled: True
+            size_hint: .5, .1
+            pos_hint: {'x': 0.0,'y': 0.8}
+            on_release: root.home()
+
+
+        MD_RECT_BUTTON: # MY_LOCAL
+            id: MY_LACAL
+            text: "MY_LOCATION"
+            size_hint: .5, .1
+            pos_hint: {'x': 0.5,'y': 0.8}
+            on_release: root.my_local()
+
+
+
+#-----------------------------------------------------------------------------------------------------
+        # THE MAP
+
+        MapsView:
+            size_hint: 1, None
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+
+
+#-----------------------------------------------------------------------------------------------------
+
+
+
+
+
+        # MAP TOOLS
+
+        TextInput:
+            id: MSG_OUT
+            size_hint: .8, .1
+            pos_hint: {'x': 0.0,'y': 0.7}
+
+        MD_RECT_BUTTON:
+            id: SEARCH
+            text: "SEARCH"
+            size_hint: .2, .1
+            pos_hint: {'x': 0.8,'y': 0.7}
+            on_press: root.look_up()
+
+
+
+
+
+
+
+        MD_RECT_BUTTON: # ZOOM_IN
+            text_color: (0,0,0,1)
+            line_color: (69/255, 245/255, 39/255, 0.99)
+            md_bg_color: (69/255, 245/255, 39/255, 0.99)
+
+            id: Z_IN
+            text: "+"
+            font_size: 25
+            size_hint: .2, .1
+            pos_hint: {'x': 0.8,'y': 0.0}
+            on_press: root.zoom_in()
+
+        MD_RECT_BUTTON: # ZOOM_OUT
+            text_color: (0,0,0,1)
+            line_color: (69/255, 245/255, 39/255, 0.99)
+            md_bg_color: (69/255, 245/255, 39/255, 0.99)
+
+            id: Z_OUT
+            text: "-"
+            font_size: 25
+            size_hint: .2, .1
+            pos_hint: {'x': 0.8,'y': 0.2}
+            on_press: root.zoom_out()
+
+
+
+#-----------------------------------------------------------------------------------------------------
+
+        MD_RECT_BUTTON: # EXIT
+            text_color: (0,0,0,1)
+            line_color: (69/255, 245/255, 39/255, 0.99)
+            md_bg_color: (69/255, 245/255, 39/255, 0.99)
+
+            id: EXIT
+            text: "EXIT"
+            size_hint: .2, .1
+            pos_hint: {'x': 0.0,'y': 0.9}
+            on_press: root.back()
+
+#-----------------------------------------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------------------------------------
+    #CONTACTS
 
 <Chat_Buttons>:
     # Default style for the button
@@ -375,14 +501,23 @@ WindowManager:
         MD_RECT_BUTTON:
             id: NEW_LOG
             text: "NEW_LOG"
-            size_hint: .8, .2
-            pos_hint: {'x': 0.1,'y': 0.5}
+            size_hint: .8, .15
+            pos_hint: {'x': 0.1,'y': 0.6}
             on_press: root.new_log()
+
+
+        MD_RECT_BUTTON:
+            id: NEW_LOG
+            text: "MAPS_PAGE"
+            size_hint: .8, .15
+            pos_hint: {'x': 0.1,'y': 0.4}
+            on_press: root.maps_page()
+
 
         MD_RECT_BUTTON:
             id: SEARCH_
             text: "SEARCH"
-            size_hint: .8, .2
+            size_hint: .8, .15
             pos_hint: {'x': 0.1,'y': 0.2}
             on_press: root.search()
 
@@ -400,8 +535,6 @@ WindowManager:
             on_press: root.back()
 
 #-----------------------------------------------------------------------------------------------------
-
-
 
 
 <Login>:

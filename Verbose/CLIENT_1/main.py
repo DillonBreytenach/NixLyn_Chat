@@ -3,10 +3,10 @@
 #LOGIN/REGISTER         [DONE]:[STD]:{NEXT}->{CROSS_ACCOUNT}
 #CONTACT_LIST           [DONE]
 #CONTACT_STATUS         [DONE]
-#MESSAGING              [NEXT]:[SEND/RECV]:
-    #   {ToDo} : {RollingMSG_s} && {Text_Input}
+#MESSAGING              [DONE]:
+    #   {ToDo} : {NEW_LINE \n } && {Text_Input -> SHIFT UP ON FOCUS (KEYBOARD)}
 #FORMS{DYNAMIC}         []
-#MAPS                   []
+#MAPS                   [NEXT]
 #CALENDER               []
 #SEARCH                 [?]
 
@@ -48,9 +48,16 @@ try:
     #PROGRAM FILES IMPORTS
     from conns import connections
     from file_handle import File_man
+
+
+    #from kivy.garden.mapview import MapView, MarkerMap
+    from kivy_garden.mapview import MapView
+
+
+
+
 except Exception as e:
     print("[ERROR]:[IMPORTS]", str(e))
-
 
 
 
@@ -64,10 +71,8 @@ class Login_Fail(Popup):
     print("LOGIN_FAIL")
 class Welcome(Popup):
     print("WELCOME")
-
 class Reg_Fail(Popup):
     print("REGISTER_FAILED")
-
 # ADD CONT FAIL/SUCCESS
 class Add_fail(Popup):
     def __init__(self, **kw):
@@ -88,6 +93,9 @@ class Add_Success(Popup):
 class New_Log(Screen):
     def back(self):
         MDApp.get_running_app().root.current = 'Home'
+
+
+
 class Search(Screen):
     def back(self):
         MDApp.get_running_app().root.current = 'Home'
@@ -96,10 +104,65 @@ class Search(Screen):
 # SCREENS/PAGES
 #*********************************************************************************************************
 
+
+
+#*********************************************************************************************************
+#MAPS_PAGE
+#*********************************************************************************************************
+
+class MapsView(MDGridLayout):
+    def __init__(self, **kw):
+        super(MapsView, self).__init__(**kw)
+        mapview = MapView(zoom=11, lat=50.6394, lon=3.057, size=(500, 400))
+        #global my_map
+        self.add_widget(mapview)
+
+
+class Maps_Page(Screen):
+    def __init__(self, **kw):
+        super(Maps_Page, self).__init__(**kw)
+        #global mapview
+        #self.add_widget(mapview)
+
+
+    def on_enter(self):
+        print("[ON_ENTER]:[MAPS_SCREEN]")
+        Clock.schedule_interval(self.go_on, 1)
+
+    def go_on(self, inst):
+        global name_
+        #print(f"[USER]:[{name_}]")
+        self.ids['USER'].text = name_
+
+
+    def home(self):
+        MDApp.get_running_app().root.current = 'Home'
+        Clock.unschedule(self.go_on)
+
+    def my_local(self):
+        lat = "eg. 1"
+        lon = "eg. 2"
+        print(f"[MY_LOACL]: \n   [LAT]:[{lat}]\n  [LON]:[{lon}]")
+
+    # MAP TOOLS
+    def zoom_in(self):
+        print("[ZOOM_IN]")
+
+    def zoom_out(self):
+        print("[ZOOM_OUT]")
+
+    def look_up(self):
+        pass
+
+    
+    # EXIT
+    def back(self):
+        MDApp.get_running_app().root.current = 'Main_WID'
+        Clock.unschedule(self.go_on)
+
 #*********************************************************************************************************
 #CHAT_PAGE
 #*********************************************************************************************************
-
 
 class Chat_Msg(MDGridLayout):
     
@@ -114,7 +177,6 @@ class Chat_Msg(MDGridLayout):
         super().on_release(**kwargs)
         self.FM = File_man()
         print("MSG_:ON_R: ", str(self.text))
-
 
 class Scroll_Chats(RecycleView): 
     def __init__(self, **kw):
@@ -411,6 +473,11 @@ class Home(Screen):
 
     def new_log(self):
         MDApp.get_running_app().root.current = 'New_Log'
+
+    def maps_page(self):
+        MDApp.get_running_app().root.current = 'Maps'
+
+
 
     def back(self):
         user_data = self.FM.read_file("SOCKET_DATA/USER.txt", "*")
