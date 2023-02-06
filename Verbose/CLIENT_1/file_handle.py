@@ -6,11 +6,58 @@ import os
 from pathlib import Path
 
 
-
 class File_man():
     def __init__(self, **kwargs):
         pass
  
+    def get_tree(self):
+        pass
+
+    def build_tree(self):
+        print("[___TREE_BUILDER___]")
+        try:
+            # PROJECT_INTEGRITY
+            #   | -ERRORS
+            #       |-
+            # PROJECT_DATA
+            #   | -SOCKET_DATA
+            #       |--IN_BOUND.txt
+            #       |--OUT_BOUND.txt
+            #       |--MSG_OF.txt
+            #       |--MSG_TO.txt
+            #       |--USER.txt
+            #       |--CONTS.txt
+            #   | -MSGS
+            #       |--*DYNAMIC*.txt
+            #   | -CHATS
+            #       |--CONTS_STATE.txt
+            #       |--CURRENT.txt
+            #       |--TARGET_STATE.txt
+            #       |--CONTS.txt
+            self.make_dir("SOCKET_DATA")
+            self.make_dir("MSGS")
+            self.make_dir("CHATS")
+            self.make_dir("ERRORS")
+            self.make_dir("SUCCEEDS")
+
+            self.socket_files = ["IN_BOUND.txt","OUT_BOUND.txt", "USER.txt", "CONTS.txt", "MSG_OF.txt", "MSG_TO.txt"]
+            self.chats_files = ["CONTS_STATE.txt","CURRENT.txt","TARGET_STATE.txt", "CONTS.txt"]
+            for f in self.socket_files:
+                self.write_file("SOCKET_DATA/"+str(f), "", "*", "w")
+            for c in self.chats_files:
+                print(f"[__WRITING__]::[<{str(c)}>]")
+                self.write_file("CHATS/"+str(c), "", "*", "w")
+
+        except Exception as e:
+            return "ERROR_READING_FILE"
+
+    def make_dir(self, path):
+        try:
+            if not self.check_dir(path):
+                os.mkdir(path)
+        except Exception as e:
+            print(f"[ALREADY_EXISTS]::[<{path}>]:\n     :[>{str(e)}<]")
+
     def file_list(self, path):
         file_list = []
         file_list = os.listdir(path)
@@ -41,8 +88,7 @@ class File_man():
         fc = self.check_file(file_name)
         if fc == False:
             os.system('touch ' + file_name)
-            print("FILE_MADE: ", str(file_name))
-
+            print(f"[FILE_MADE]\n    [>{str(file_name)}<]")
         if file_name:
             if type(data) == str:
                 #print("WRITING STR:: ", str(data))
@@ -60,14 +106,29 @@ class File_man():
             return
 
     def check_file(self, file_name):
+        #print(f"[CHECK_FILE]::[>{str(file_name)}<]")
         path_to_file = file_name
         path = Path(path_to_file)
         if path.is_file():
-            #print(f'[file exists] : {file_name}')
+            #print(f'[IsFile]\n    [>{file_name}<]\n    [>{path}<]')
             return True
         else:
-            print(f'[file]: {path_to_file} !does_not_exist!')
+            #print(f'[NotFile]\n    [>{file_name}<]\n    [>{path}<]')
             return False
+
+    def check_dir(self, dir_name):
+        #print(f"[CHECK_DIR]::[>{str(dir_name)}<]")
+        path_to_file = dir_name
+        path = Path(dir_name)
+        try:
+            if os.path.isdir(dir_name):
+                #print(f"[IsDir]\n    [>{dir_name}<]\n    [>{path}<]")
+                return True
+            else:
+                #print(f"[NotDir]\n    [>{dir_name}<]\n    [>{path}<]")
+                return False
+        except Exception as e:
+            print(f'\n\n!![ERROR]!!\n[DIR_TEST]::[>{str(e)}<]')
 
 
 

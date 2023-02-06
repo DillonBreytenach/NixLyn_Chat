@@ -5,7 +5,7 @@ try:
     from socket import error as sock_error
     import threading
     from threading import Thread, ThreadError
-    from file_handle import File_man
+    from File_Man import File_man
     import time
 except Exception as e:
     print("[IMPORT]::[ERROR]", str(e))
@@ -14,66 +14,30 @@ except Exception as e:
 class connections():
     #__INIT__
     def __init__(self, **kwargs):
+        pass
+
+
+
+
         try:
             self.val = ""
             self.FM = File_man()
         except Exception as e:
             print("[ERROR]::[SETTING]::{VARS}&&{IMPORTS}::", str(e))
-            self.FM.write_file("ERRORS/CONNS.ffs", str(e), "*", "w")
-            
-
-    def close_conn(self):
         try:
-            self.sock.close()
-        except:
-            print("[OOPs]")
-
-
-    def start_conn(self, set_ip, set_port):
-        try:
-            print('[start_conn]..0')
-            # '192.168.8.124'  #'192.168.1.100'  #'127.0.0.1'
-            self.host =  set_ip             #'192.168.44.46'
-            self.port =  set_port                   #80
+            self.host =  str(self.FM.read_file("CONN/IP_HOS.txt", "*")[0])    #'127.0.0.1' #'192.168.1.100'  #'127.0.0.1'
+            self.port =   str(self.FM.read_file("CONN/IP_HOS.txt", "*")[1])     #8080       # 8085
             self.encap = "*"
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print('[start_conn]..1')
-
         except Exception as e:
             print('CONNECTION_INIT[ERROR]:: ', str(e))
-            #self.FM.write_file("ERRORS/CONNS.ffs", str(e), "*", "w")
-
         #SET SOCKET_CONNECTIONS
         try:
-            print('[start_conn]..2')
             self.sock.connect((self.host, self.port))
             print("\n[CONNECTED]\n")
-            #self.FM.write_file("CONN/CONN_STATE.txt", "PASSED*", "", "w")
-
         except Exception as e:
             print('SOCK_ERROR:: ', str(e))
-            self.FM.write_file("ERRORS/CONNS.ffs", str(e), "*", "w")
-            #self.FM.write_file("CONN/CONN_STATE.txt", "FAILED", "", "w")
 
-        try:
-            print("[CON_THREAD->>x]")
-            self.con_threads()
-        except Exception as e:
-            print("[NO_CONNECTION]",str(e))
-
-    def con_threads(self):
-        try:
-            print('[start_conn]..4')
-
-            self.recv = threading.Thread(target=self.get_msg)
-            self.watch = threading.Thread(target=self.send_msg)
-            self.recv.start()
-            self.watch.start()
-            self.connected = True
-            print("[THREADS_RUNNING]:[RECV]:[SEND]")
-
-        except Exception as e:
-            print("[NO_CONNECTION]")
 
 
 
@@ -82,11 +46,15 @@ class connections():
         ls_data = []
         collected_ = []
 
+
         if "ACCESS_DENIED" in data:
             self.FM.write_file("SOCKET_DATA/MSG_OF.txt", data, "*", "w")
 
         if "SAVED" in data:
             ls_data = data.split("*")
+
+            #for i in ls_data:
+            #    print("MSG:: ", str(i))
 
             if len(ls_data) >= 6:
                 user_ = str(ls_data[2])
@@ -147,7 +115,7 @@ class connections():
                     self.FM.write_file(file_name, str(data_break[1]), "$", "w")
 
                 # FOR TESTING ONLY
-                #return buff_lst
+                return buff_lst
                 # ^^^^^^^^^^^^^^^^
             except Exception as e:
                 print("[ERROR]::[STACK_MSGS]::",str(e))
@@ -244,10 +212,10 @@ class connections():
                     self.conts = self.FM.read_file(cont_path, "*")
 
 
-                    #if tc == self.tc:
-                    #    print("TC",str(self.tc))
-                    #    self.data = self.test_conn
-                    #    self.tc+=1
+                    if tc == self.tc:
+                        print("TC",str(self.tc))
+                        self.data = self.test_conn
+                        self.tc+=1
 
 
                     # STANDARD
@@ -269,6 +237,7 @@ class connections():
                             print("toSend:: ", str(toSend))
                             #RESET DATA
                             self.init_data = self.data
+                            #print(f"INIT_DATA ::\n>{self.init_data}\nN_DATA ::\n>{self.data}\n")
                             toSend = ""
                         except Exception as e:
                             print("[FUCKUP]::SEND_MSG:TO_SERVER:", str(e))
@@ -280,7 +249,7 @@ class connections():
                         toSend = ""
                         for _ in self.conts:
                             toSend+=str(_)+"*"
-
+                        
                         msg_len = len(toSend)
                         send_len = str(msg_len).encode()
                         send_len += b' ' * (64 - len(send_len))
@@ -297,6 +266,7 @@ class connections():
 
                     # MSGS
                     if self.init_msg != self.msg and len(self.msg) > 0:
+                        #print("[SENDING_MSG_OUT]")
                         toSend = ""
                         for _ in self.msg:
                             toSend+=str(_)+"*"

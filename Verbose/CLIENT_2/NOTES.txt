@@ -1,0 +1,19 @@
+#TODO::{BACK_END}
+#TABS                   [CONTINUOUS]
+#LOGIN/REGISTER         [DONE]:[STD]:{NEXT}->{CROSS_ACCOUNT}
+#CONTACT_LIST           [DONE]
+#CONTACT_STATUS         [DONE]
+#MESSAGING              [DONE]:
+    #   {ToDo} : {NEW_LINE \n } && {Text_Input 
+                                    -> KEYBOARD_SHIFT UP ON FOCUS 
+                                    (KEYBOARD)}
+#MAPS                   [NEXT]
+#FORMS{DYNAMIC}         [?]
+#CALENDER               [?]
+#SEARCH                 [?]
+
+        except Exception as e:
+            print(f"[CONN_ERROR]::[>{str(e)}<]")
+            self.FM.write_file("ERRORS/CON_IMPORT_.fss", str(e), "\n", "w")
+            pass
+        try:

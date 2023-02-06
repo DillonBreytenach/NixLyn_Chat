@@ -1,21 +1,22 @@
-#: import Button kivy.uix.button.Button
-#: import Label kivy.uix.label.Label
-#: import Clock kivy.clock.Clock
-#: import MDLabel kivymd.uix.label.MDLabel
-#: import MDRoundFlatButton kivymd.uix.button.MDRoundFlatButton
-
-#: import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout
-
 #: import os os
 #: import Window kivy.core.window.Window
-#: import IconLeftWidget kivymd.uix.list.IconLeftWidget
+#: import FloatLayout kivy.uix.floatlayout
+#: import Button kivy.uix.button.Button
+#: import Label kivy.uix.label.Label
+#: import MDLabel kivymd.uix.label.MDLabel
+#: import MDRoundFlatButton kivymd.uix.button.MDRoundFlatButton
+#: import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout
 
 
-#-----------------------------------------------------------------------------------------------------
+
 
 WindowManager:
 <WindowManager>:
+    ConnectFirst:
     Main_WID:
+    LoadingPage:
+    MyGPS:
+    Test_Conn:
     Login:
     Register:
     Home:
@@ -26,14 +27,100 @@ WindowManager:
     Add_C:
     Maps_Page:
 
+
+
 #-----------------------------------------------------------------------------------------------------
 # ATRIBUTES GLOBAL
+#-----------------------------------------------------------------------------------------------------
+#
 <MD_RECT_BUTTON@MDRectangleFlatButton>:
     text_color: (0,0,0,1)
     line_color: (69/255, 245/255, 39/255, 0.99)
     md_bg_color: (69/255, 245/255, 39/255, 0.99)
     ripple_behavior: True
-    
+#
+#-----------------------------------------------------------------------------------------------------
+#
+#-----------------------------------------------------------------------------------------------------
+
+
+
+
+#
+#-----------------------------------------------------------------------------------------------------
+#   # CONNECTION FIRST PAGE
+#-----------------------------------------------------------------------------------------------------
+
+<ConnectFirst>:
+    name: 'conn_first'
+    MDFloatLayout:
+
+        MDLabel:
+            id: test_conn
+            size_hint: 1, None
+            pos_hint: {'x': 0.0,'y': 0.9}
+            text: "INSERT_IP_AND_HOST"
+
+        MDTextField:
+            id: TEST_IP
+            hint_text: "IP: ?.?.?.?"
+            size_hint: .8, .1
+            pos_hint: {'x': 0.0,'y': 0.75}
+            active_line: False
+            mode: "rectangle"
+            text_color_normal: "black"
+            color_mode: 'custom'
+            line_color_normal: 0,0,0,1
+            line_color_focus: 0,0,0,1
+            hint_text_color_focus: 0,0,0,1
+            hint_text_color_normal: 0,0,0,.8
+            color_active: 0,0,0,1
+            normal_color: 0,0,0,1
+            fill_color: (20/255, 245/255, 209/255, 0.99)
+
+
+
+
+        MDTextField:
+            id: TEST_PORT
+            hint_text: "PORT: ???"
+            size_hint: .8, .1
+            pos_hint: {'x': 0.0,'y': 0.65}
+            active_line: False
+            mode: "rectangle"
+            text_color_normal: "black"
+            color_mode: 'custom'
+            line_color_normal: 0,0,0,1
+            line_color_focus: 0,0,0,1
+            hint_text_color_focus: 0,0,0,1
+            hint_text_color_normal: 0,0,0,.8
+            color_active: 0,0,0,1
+            normal_color: 0,0,0,1
+            fill_color: (20/255, 245/255, 209/255, 0.99)
+
+
+
+
+        MD_RECT_BUTTON:
+            text: "TEST_CONNECT"
+            size_hint: 0.7, 0.1
+            pos_hint: {'x': 0.0, 'y': 0.45}
+            on_release: root.get_conn()
+
+#
+#-----------------------------------------------------------------------------------------------------
+#
+#-----------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -41,14 +128,32 @@ WindowManager:
 #-----------------------------------------------------------------------------------------------------
 #POPUPS
     #ERROR/SUCCESSFUL
+<CONNECTION_FAIL>:
+    title: "[ERROR]"
+    md_bg_color: 0,0,0,1
+    Button:
+        md_bg_color: 1,1,1,0
+        size_hint:  1, 1
+        text: "[SERVER_CONNECTION_FAILED]"
+        on_release: root.dismiss()
+<CONNECTION_MADE>:
+    title: "[CONNECTED]"
+    md_bg_color: 0,0,0,1
+    Button:
+        md_bg_color: 1,1,1,0
+        size_hint:  1, 1
+        text: "[SERVER_CONNECTION_MADE]"
+        on_release: root.dismiss()
+
+
 <Login_Fail>:
     title: "LOGIN_FAIL"
-    Button:
+    MD_RECT_BUTTON:
         text: "[INCORRECT]:\nPSWD || USERNAME"
         on_release: root.dismiss()
 <Reg_Fail>:
     title: "REG_FAIL"
-    Button:
+    MD_RECT_BUTTON:
         text: "REG_FAIL"
         on_release: root.dismiss()
 <Add_fail>:
@@ -115,6 +220,10 @@ WindowManager:
     #FUNC_S
 #-----------------------------------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------------------------------
+#   NEW_LOGS
+#-----------------------------------------------------------------------------------------------------
+#
 <New_Log>:
     name: 'New_Log'
     MDFloatLayout:
@@ -137,6 +246,10 @@ WindowManager:
             pos_hint: {'x': 0.0,'y': 0.8}
             on_release: root.home()
 
+#-----------------------------------------------------------------------------------------------------
+#   SEARCH
+#-----------------------------------------------------------------------------------------------------
+#
 <Search>:
     name: 'Search'
     MDFloatLayout:
@@ -150,6 +263,12 @@ WindowManager:
             text: "BACK"
             on_release: root.back()
 
+#-----------------------------------------------------------------------------------------------------
+#
+#-----------------------------------------------------------------------------------------------------
+#
+
+
 
 
 
@@ -157,7 +276,7 @@ WindowManager:
 #MAPS_PAGE
 #-----------------------------------------------------------------------------------------------------
 
-<MapsView>:
+#<MapsView>:
 
 
 <Maps_Page>:
@@ -168,6 +287,21 @@ WindowManager:
         orientation: 'vertical'
 
 #-----------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------
+        # THE MAP
+
+        MDBoxLayout:
+            size_hint: 1, 0.7
+            pos_hint: {"x": 0.0, "y": 0.0}
+            MD_RECT_BUTTON:
+                text: app.gps_location
+            #MapsView:
+            #    size_hint: 1, None
+            #    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+#-----------------------------------------------------------------------------------------------------
+
         # BASE 
         MD_RECT_BUTTON: # USER
             id: USER
@@ -178,7 +312,7 @@ WindowManager:
         MD_RECT_BUTTON: # HOME
             id: Home
             text: "Home"
-            disabled: True
+            disabled: False
             size_hint: .5, .1
             pos_hint: {'x': 0.0,'y': 0.8}
             on_release: root.home()
@@ -192,21 +326,7 @@ WindowManager:
             on_release: root.my_local()
 
 
-
 #-----------------------------------------------------------------------------------------------------
-        # THE MAP
-
-        MapsView:
-            size_hint: 1, None
-            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
-
-
-#-----------------------------------------------------------------------------------------------------
-
-
-
-
 
         # MAP TOOLS
 
@@ -221,12 +341,6 @@ WindowManager:
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.7}
             on_press: root.look_up()
-
-
-
-
-
-
 
         MD_RECT_BUTTON: # ZOOM_IN
             text_color: (0,0,0,1)
@@ -251,11 +365,11 @@ WindowManager:
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.2}
             on_press: root.zoom_out()
-
-
-
+#
 #-----------------------------------------------------------------------------------------------------
-
+#-----------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
+#
         MD_RECT_BUTTON: # EXIT
             text_color: (0,0,0,1)
             line_color: (69/255, 245/255, 39/255, 0.99)
@@ -266,13 +380,15 @@ WindowManager:
             size_hint: .2, .1
             pos_hint: {'x': 0.0,'y': 0.9}
             on_press: root.back()
-
+#
 #-----------------------------------------------------------------------------------------------------
-
-
+#
 #-----------------------------------------------------------------------------------------------------
-    #CONTACTS
-
+#   CONTACTS
+#-----------------------------------------------------------------------------------------------------
+#   #   SRCEEN
+#-----------------------------------------------------------------------------------------------------
+#
 <Chat_Buttons>:
     # Default style for the button
     font_size: 20
@@ -280,14 +396,12 @@ WindowManager:
     height: 50
     background_color: (0.5, 0.5, 0.5, 1)
     color: (0, 0, 0, 1)
-
-
+#
+#-----------------------------------------------------------------------------------------------------
+#   #   CONTACTS-ITEMS-OPTIONS
+#-----------------------------------------------------------------------------------------------------
+#
 <TwoButtons>:
-    # This class is used as the viewclass in the RecycleView
-    # The means this widget will be instanced to view one element of data from the data list.
-    # The RecycleView data list is a list of dictionaries.  The keys in the dictionary specify the 
-    # attributes of the widget.
-
     font_size: 30
     size_hint: (1.5, None)
     height: 60
@@ -304,8 +418,11 @@ WindowManager:
     MD_RECT_BUTTON:
         text: root.right_text
         on_release: root.go_chat(root.left_text), print(f'Button {self.text} pressed') 
-        
-
+#
+#-----------------------------------------------------------------------------------------------------
+#   #   CONTACTS_LIST-SCROLLER
+#-----------------------------------------------------------------------------------------------------
+#
 <Scroll_Me>:
     viewclass: "TwoButtons"
     RecycleBoxLayout:
@@ -315,8 +432,11 @@ WindowManager:
         orientation: 'vertical'
         height: self.minimum_height
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
-        
-
+#
+#-----------------------------------------------------------------------------------------------------
+#   #   SCREEN
+#-----------------------------------------------------------------------------------------------------
+#
 <Contacts>:
     id: Contacts
     name: 'Contacts'
@@ -360,11 +480,13 @@ WindowManager:
             size_hint: .2, .1
             pos_hint: {'x': 0.0,'y': 0.9}
             on_press: root.back()
-        
-
+#
 #-----------------------------------------------------------------------------------------------------
-
-
+#   CHAT_MSGS
+#-----------------------------------------------------------------------------------------------------
+#   #   MSG-ITEMS
+#-----------------------------------------------------------------------------------------------------
+#
 <Chat_Msg>:
     rows: 3
     padding: (0, 5, 30, 0) if root.side == "left" else (30, 5, 0, 0)
@@ -396,9 +518,11 @@ WindowManager:
         font_size: 10
         color: (0.5, 0.5, 0.5, 1)
         on_release: print(root.msg_dt)
-
-
-
+#
+#-----------------------------------------------------------------------------------------------------
+#   #   MSG_LIST-SCROLLER
+#-----------------------------------------------------------------------------------------------------
+#
 <Scroll_Chats>:
     viewclass: "Chat_Msg"
     RecycleBoxLayout:
@@ -407,7 +531,11 @@ WindowManager:
         size_hint_y: None
         orientation: 'vertical'
         height: self.minimum_height
-
+#
+#-----------------------------------------------------------------------------------------------------
+#   #   SCREEN-STRUCTURE
+#-----------------------------------------------------------------------------------------------------
+#
 <Chats>:
     id: Chats
     name: 'Chats'
@@ -458,7 +586,6 @@ WindowManager:
             pos_hint: {'x': 0.0,'y': 0.9}
             on_press: root.back()
 
-
         TextInput:
             id: MSG_OUT
             size_hint: .8, .1
@@ -470,13 +597,13 @@ WindowManager:
             size_hint: .2, .1
             pos_hint: {'x': 0.8,'y': 0.0}
             on_press: root.send_it()
-
+#
 #-----------------------------------------------------------------------------------------------------
-    #MAIN_PROFILE_HANDLE
+#    HOME_PAGE - DASHBOARD
+#-----------------------------------------------------------------------------------------------------
+#
 <Home>:
     name: 'Home'
-
-    #MAIN_PROFILE_SCREEN
     MDFloatLayout:
         orientation: 'vertical'
 
@@ -535,10 +662,11 @@ WindowManager:
             size_hint: .2, .1
             pos_hint: {'x': 0.0,'y': 0.9}
             on_press: root.back()
-
+#
 #-----------------------------------------------------------------------------------------------------
-
-
+#   LOGIN
+#-----------------------------------------------------------------------------------------------------
+#
 <Login>:
     name: 'Login'
     MDScrollView:
@@ -619,9 +747,11 @@ WindowManager:
                 size_hint: .8, .1
                 pos_hint: {'center_x': 0.5, 'center_y': 0.4}
                 on_release: root.login_()
-
-
-
+#
+#-----------------------------------------------------------------------------------------------------
+#   REGISTER
+#-----------------------------------------------------------------------------------------------------
+#
 <Register>:
     name: 'Register'
     MDScrollView:
@@ -698,9 +828,17 @@ WindowManager:
                 size_hint: .8, .1
                 pos_hint: {'center_x': 0.5, 'center_y': 0.4}
                 on_release: root.Register_()
-
+#
 #-----------------------------------------------------------------------------------------------------
-    #Main_WID
+#-----------------------------------------------------------------------------------------------------
+#   OFF-SET-MAIN
+#-----------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
+#
+#-----------------------------------------------------------------------------------------------------
+#   MAIN_WID
+#-----------------------------------------------------------------------------------------------------
+#
 <Main_WID>:
     name: "Main_WID"
     MDFloatLayout:
@@ -710,9 +848,8 @@ WindowManager:
         MD_RECT_BUTTON:
             id: HEAD_LINE
             text:'NixLyn\nTubeChat'
-
             bold: True
-            font_size: 24
+            font_size: 35
             line_color: (0,0,0,0)
             text_color: (0,0,0,1)
             md_bg_color: (69/255, 245/255, 39/255, 0.99) # rgba(69, 245, 39, 1)
@@ -722,28 +859,426 @@ WindowManager:
  
         MD_RECT_BUTTON:
             text: "REGISTER"
-            font_size: 25
-
+            font_size: 35
             size_hint: .8, .1
             pos_hint: {'x': 0.1,'y': 0.5}# 0.2, .4
             on_press: root.Register()
 
         MD_RECT_BUTTON:
             text: "LOGIN"
-            font_size: 25
+            font_size: 35
             ripple_behavior: True
-
-
             size_hint: .8, .1
             pos_hint: {'x': 0.1,'y': 0.3}# 0.2, .4
             on_press: root.Login()
 
         MD_RECT_BUTTON:
-            text: "Exit"
-            font_size: 25
-
+            text: "ADMIN-DEV"
+            font_size: 35
             size_hint: .8, .10
             pos_hint: {'x': 0.1,'y': 0.1}# 0.2, .4
             border: 30,30,30,30
+            on_press: root.goto_loading() #root.Exit()
 
-            on_press: root.Exit()
+        MD_RECT_BUTTON:
+            id: connect_to
+            text: "CONNECT"
+            font_size: 35
+            size_hint: .3, .05
+            pos_hint: {'x': 0.65,'y': 0.925}
+            border: 30,30,30,30
+            on_press: root.check_conn()
+
+
+#
+#-----------------------------------------------------------------------------------------------------
+
+
+
+#-----------------------------------------------------------------------------------------------------
+#   ADMIN_DAIRY
+#-----------------------------------------------------------------------------------------------------
+#
+#*********************************************************************************************************
+#   LOADING_PAGE
+#*********************************************************************************************************
+#       BUTTONS -> DYNAMIC_WIDGETS
+#*********************************************************************************************************
+#
+<MyGPS>:
+    name: "myGPS"
+    MDFloatLayout:
+
+
+#-----------------------------------------------------------------------------------------------------
+        # THE MAP
+
+        MDBoxLayout:
+            size_hint: 1, 0.7
+            md_bg_color: 0.01, 0.8, 0.1, 0.9
+            pos_hint: {"x": 0.0, "y": 0.1}
+        #    MapsView:
+        #        size_hint: 1, None
+        #        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+#-----------------------------------------------------------------------------------------------------
+
+
+
+        MDLabel:
+            color: 1,1,1,1
+            md_bg_color: 0.5, 0.5, 0.5, 1
+            id: test_gps
+            text: "TEST_GPS"
+            font_size: 20
+            size_hint: 1, .1
+            pos_hint: {'center_x': 0.5, 'y': 0.9}
+
+
+        MDLabel:
+            color: 1,1,1,1
+            md_bg_color: 0.1, 0.1, 0.1, 1
+            id: lat
+            text: app.gps_location if len(app.gps_location) > 0 else "[GPS_DEVICE_ERROR]"
+            font_size: 20
+            size_hint: 1, .1
+            pos_hint: {'x': 0, 'y': 0.8}
+
+        #MDLabel:
+        #    color: 1,1,1,1
+        #    md_bg_color: 0.2, 0.2, 0.2, 1
+        #    id: lng
+        #    text:  '[Longitude: ]' 
+        #    font_size: 20
+        #    size_hint: 0.5, .15
+        #    pos_hint: {'x': 0.5, 'y': 0.6}
+
+
+        MDLabel:
+            color: 1,1,1,1
+            md_bg_color: 0.2, 0.2, 0.2, 1
+            id: stderr_1
+            text: app.is_droid
+            font_size: 20
+            size_hint: 1, .1
+            pos_hint: {'center_x': 0.5, 'y': 0.7}
+
+        MDLabel:
+            color: 1,1,1,1
+            md_bg_color: 0.1, 0.1, 0.1, 1
+            id: stderr_2
+            text:  app.gps_status
+            font_size: 20
+            size_hint: 1, .1
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
+
+
+
+        ToggleButton:
+            background_color: 0.2, 0.5, 0.5, 1
+            size_hint: 1, .1
+            pos_hint: {'x': 0.0, 'y': 0.1}
+            text: 'Start' if self.state == 'normal' else 'Stop'
+            on_state:
+                app.start(1,0) if self.state == 'down' else \
+                app.stop()
+
+
+        MDRoundFlatButton:
+            id: test_conn_page
+            text: "TEST_CONN_PAGE"
+            size_hint: 0.5, .1
+            pos_hint: {'x': 0.0, 'y': 0.0}
+            on_release: root.goto_test_conn()
+
+        MDRoundFlatButton:
+            id: loading_page
+            text: "LAODING_PAGE"
+            size_hint: 0.5, .1
+            pos_hint: {'x': 0.5, 'y': 0.0}
+            on_release: root.goto_loading()
+
+        MDRoundFlatButton:
+            md_bg_color: (0.2, 0.8, 0.9, 1) if app.perms_ == '[^]' else (0.9, 0.2, 0.2, 1)
+            id: perms_s
+            text: app.perms_
+            font_size: 30
+            size_hint: .01, .02
+            pos_hint: {'x': 0.8, 'y': 0.9}
+            on_release: app.hi()  if app.perms_ == '[^]' else app.get_perms()
+#
+#*********************************************************************************************************
+#
+#*********************************************************************************************************
+#*********************************************************************************************************
+#
+#
+#*********************************************************************************************************
+#   LOADING_PAGE
+#*********************************************************************************************************
+#       BUTTONS -> DYNAMIC_WIDGETS
+#*********************************************************************************************************
+#
+<DirsButtons>:
+    size_hint: (1.5, None)
+    height: 60
+    spacing: 0
+    padding: (5, 20, 5, 20)
+
+    MDRectangleFlatButton:
+        md_bg_color: 0.3, 0.5, 0.6, 1
+        font_color:  1,0,0,1
+        size_hint: 2, None
+        text: root.dir_fs
+        font_size: 20
+        on_release: root.no_(), root.read_out(root.dir_fs)
+    MDRectangleFlatButton:
+        md_bg_color: 0.3, 0.5, 0.6, 1
+        color:  0,0,0,1
+        size_hint: 2, None
+        font_size: 20
+        text: root.file_fs
+        #on_release: root.read_out(), print("[FIL]") #root.go_chat(root.left_text), print(f'Button {self.text} pressed') 
+#
+#*********************************************************************************************************
+#
+#*********************************************************************************************************
+#       SCROLLER -> DIRECTORY_INFO
+#*********************************************************************************************************
+#
+<ScrollDirs>:
+    viewclass: "DirsButtons"
+    RecycleBoxLayout:
+        default_size: None, None
+        default_size_hint: 1, None
+        size_hint_y: None
+        orientation: 'vertical'
+        height: self.minimum_height
+        #pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+#
+#*********************************************************************************************************
+#
+#*********************************************************************************************************
+#      ## SCREEN ##
+#*********************************************************************************************************
+#
+<LoadingPage>:
+    name: 'loading'
+    scrollerName: 'ScrollDirs'
+
+    MDFloatLayout:
+        md_bg_color: 0.1, 0.1, 0.1, 1
+        color: 1,1,1,1
+        MDLabel:
+            color: 1,1,1,1
+            id: test_gps
+            text: app.gps_location
+            font_size: 10
+            size_hint: 0.5, .15
+            pos_hint: {'x': 0.8, 'y': 0.85}
+
+        MDLabel:
+            color: 1,1,1,1
+            id: load_l1
+            text: "CLIENT_APP"
+            font_size: 15
+            size_hint: 1, .15
+            pos_hint: {'x': 0, 'y': 0.85}
+
+        MDLabel:
+            color: 1,1,1,1
+            id: load_l2
+            text: "LOADING_PAGE"
+            font_size: 15
+            size_hint: 1, .1
+            pos_hint: {'x': 0, 'y': 0.8}
+
+        MDFloatLayout:
+            #id: dir_check
+            color: 1,1,1,1
+            md_bg_color: 0.5, 0.5, 0.9, 1
+            pos_hint: {'x': 0.05, 'y': 0.2}
+            size_hint: 0.9, 0.6
+            ScrollDirs:
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                id: Scroll_dirs
+                scroll_y: 0
+                effect_cls: "ScrollEffect"
+
+
+        MDRoundFlatButton:
+            id: test_dir
+            text: "TEST_DIR_INTEGRITY"
+            size_hint: 1, .1
+            pos_hint: {'x': 0, 'y': 0.1}
+            on_release: root.test_dirs()
+
+        MDRoundFlatButton:
+            id: test_conn_page
+            text: "TEST_CONN_PAGE"
+            size_hint: 0.5, .1
+            pos_hint: {'x': 0.0, 'y': 0.0}
+            on_release: root.test_screen()
+
+        MDRoundFlatButton:
+            id: test_gps_page
+            text: "TEST_GPS_PAGE"
+            size_hint: 0.5, .1
+            pos_hint: {'x': 0.5, 'y': 0.0}
+            on_release: root.goto_gps()
+
+        MDRoundFlatButton:
+            md_bg_color: (0.2, 0.8, 0.9, 1) if app.perms_ == '[^]' else (0.9, 0.2, 0.2, 1)
+            id: perms_s
+            text: app.perms_
+            font_size: 30
+            size_hint: .01, .02
+            pos_hint: {'x': 0.9, 'y': 0.9}
+            on_release: app.hi()  if app.perms_ == '[^]' else app.get_perms()
+#
+#*********************************************************************************************************
+#*********************************************************************************************************
+#
+#*********************************************************************************************************
+#   TESTING_PAGE
+#*********************************************************************************************************
+#       SCREEN
+#*********************************************************************************************************
+#
+<Test_Conn>:
+    name: 'test_conns'
+    MDFloatLayout:
+
+        MDLabel:
+            id: test_conn
+            text: "Test_ConnS"
+            font_size: 20
+            size_hint: 1, .2
+            pos_hint: {'center_x': 0.6, 'y': 0.8}
+
+
+        MDLabel:
+            md_bg_color: 0.5, 0.7, 0.9, 1
+            color: 1,1,1,1
+            id: lng
+            text: "LNG: "
+            font_size: 15
+            size_hint: 0.5, .15
+            pos_hint: {'x': 0.8, 'y': 0.85}
+
+
+        MDLabel:
+            md_bg_color: 0.5, 0.2, 0.9, 1
+            color: 1,1,1,1
+            id: lat
+            text: app.gps_location
+            font_size: 15
+            size_hint: 0.5, .15
+            pos_hint: {'x': 0.6, 'y': 0.85}
+
+
+
+
+        MDLabel:
+            id: conn_act
+            text: "NOT_CONNECTED"
+            font_size: 15
+            size_hint: 1, .2
+            pos_hint: {'center_x': 0.6, 'y': 0.75}
+
+        MDLabel:
+            id: conn_act1
+            text: "NOT_CONNECTED"
+            font_size: 15
+            size_hint: 1, .2
+            pos_hint: {'center_x': 0.6, 'y': 0.7}
+
+
+        MDLabel:
+            id: conn_act2
+            text: "NOT_CONNECTED"
+            font_size: 15
+            size_hint: 1, .2
+            pos_hint: {'center_x': 0.6, 'y': 0.65}
+
+
+
+        MDTextField:
+            id: TEST_IP
+            hint_text: "IP: ?.?.?.?"
+            size_hint: .8, .1
+            pos_hint: {'x': 0.0,'y': 0.5}
+            active_line: False
+            mode: "rectangle"
+            text_color_normal: "black"
+            color_mode: 'custom'
+            line_color_normal: 0,0,0,1
+            line_color_focus: 0,0,0,1
+            hint_text_color_focus: 0,0,0,1
+            hint_text_color_normal: 0,0,0,.8
+            color_active: 0,0,0,1
+            normal_color: 0,0,0,1
+            fill_color: (20/255, 245/255, 209/255, 0.99)
+
+
+
+        MDTextField:
+            id: TEST_PORT
+            hint_text: "PORT: 0-8999"
+            size_hint: .8, .1
+            pos_hint: {'x': 0.0,'y': 0.4}
+            active_line: False
+            mode: "rectangle"
+            text_color_normal: "black"
+            color_mode: 'custom'
+            line_color_normal: 0,0,0,1
+            line_color_focus: 0,0,0,1
+            hint_text_color_focus: 0,0,0,1
+            hint_text_color_normal: 0,0,0,.8
+            color_active: 0,0,0,1
+            normal_color: 0,0,0,1
+            fill_color: (20/255, 245/255, 209/255, 0.99)
+
+
+        MDRectangleFlatButton:
+            id: g_ping
+            text: "G_PING"
+            size_hint: 1, .1
+            pos_hint: {'x': 0, 'y': 0.2}
+            on_release: root.g_ping()
+
+
+
+        MDRectangleFlatButton:
+            id: my_ping_test
+            text: "PING_TEST"
+            size_hint: 1, .1
+            pos_hint: {'x': 0, 'y': 0.1}
+            on_release: root.ping_test()
+
+
+        MDRoundFlatButton:
+            id: loading_page
+            text: "LOADING_PAGE"
+            size_hint: 0.5, .1
+            pos_hint: {'x': 0.0, 'y': 0.0}
+            on_release: root.goto_loading()
+
+        MDRoundFlatButton:
+            id: test_gps_page
+            text: "TEST_GPS_PAGE"
+            size_hint: 0.5, .1
+            pos_hint: {'x': 0.5, 'y': 0.0}
+            on_release: root.goto_gps()
+
+        MDRoundFlatButton:
+            md_bg_color: (0.2, 0.8, 0.9, 1) if app.perms_ == '[^]' else (0.9, 0.2, 0.2, 1)
+            id: perms_s
+            text: app.perms_
+            font_size: 30
+            size_hint: .01, .02
+            pos_hint: {'x': 0.9, 'y': 0.9}
+            on_release: app.hi()  if app.perms_ == '[^]' else app.get_perms()
+#
+#*********************************************************************************************************
+#*********************************************************************************************************
